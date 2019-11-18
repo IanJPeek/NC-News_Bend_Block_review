@@ -11,6 +11,31 @@ exports.seed = function(knex) {
   const topicsInsertions = knex('topics').insert(topicData);
   const usersInsertions = knex('users').insert(userData);
 
+  return knex.migrate
+  .rollback()
+  .then(() =>{
+    knex.migrate.latest()
+  })
+  .then(() =>{
+    return knex('topics')
+    .insert(topicData)
+    .returning("*");
+    })
+  .then((topicRows) => {
+     console.log(topicRows)
+  })
+  .then(() => {
+    return knex('articles')
+    .insert(articleData)
+    .returning("*");
+  })
+  .then((articleRows)=>{
+    console.log(articleRows)
+  })
+
+
+}
+
   return Promise.all([topicsInsertions, usersInsertions])
     .then(() => {
       /* 
@@ -36,4 +61,5 @@ exports.seed = function(knex) {
       const formattedComments = formatComments(commentData, articleRef);
       return knex('comments').insert(formattedComments);
     });
+
 };
