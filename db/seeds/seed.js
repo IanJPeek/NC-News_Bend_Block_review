@@ -17,20 +17,29 @@ exports.seed = function(knex) {
     knex.migrate.latest()
   })
   .then(() =>{
-    return knex('topics')
+
+    const insertedTopics =knex('topics')
+    //return 
+    knex('topics')
     .insert(topicData)
     .returning("*");
     })
+    .then(() =>{
+    const insertedUsers = knex('users')
+    knex('users')
+    .insert(userData)
+    .returning("*")
+    })
+  
   .then((topicRows) => {
      console.log(topicRows)
-  })
-  .then(() => {
     return knex('articles')
     .insert(articleData)
     .returning("*");
   })
   .then((articleRows)=>{
     console.log(articleRows)
+
   })
 
 
