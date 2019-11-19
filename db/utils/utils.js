@@ -30,7 +30,7 @@ exports.formatDates = list => {
 };
 
 exports.makeRefObj = list => {
-if (list[0].title === undefined) return {};
+// if (list[0].title === undefined) return {};
 //modify so does not mutate...
 let copy = list.map(obj => obj);
 
@@ -40,7 +40,7 @@ const refObject = {};
 for (let i = 0; i < copy.length; i++) {
   refObject[copy[i].title] = copy[i].article_id;
 }
-console.log(refObject)
+
 return refObject;
 
 
@@ -66,7 +66,7 @@ delete copy[i].belongs_to;
 //reformat date
 comments[i].created_at = new Date(comments[i].created_at);
 }
-console.log (copy)
+
 return copy;
 
 
