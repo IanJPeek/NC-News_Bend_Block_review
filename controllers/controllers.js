@@ -4,7 +4,8 @@ const {
   selectArticles,
   selectComments,
   grabUser,
-  grabArticle
+  grabArticle,
+  grabComment
 } = require("../models/models");
 
 const getTopics = (req, res, next) => {
@@ -39,7 +40,6 @@ const getArticles = (req, res, next) => {
 };
 
 const getSingleArticle = (req, res, next) => {
-  console.log ("in controller single article")
   const { article_id } = req.params;
   grabArticle(article_id).then(article => {
     res.status(200).send({ article });
@@ -52,11 +52,19 @@ const getComments = (req, res, next) => {
   });
 };
 
+const getSingleComment = (req, res, next) => {
+  const { comment_id } = req.params;
+  grabArticle(comment_id).then(comment => {
+    res.status(200).send({ comment });
+  });
+};
+
 module.exports = {
   getTopics,
   getUsers,
   getArticles,
   getComments,
   getSingleUser,
-  getSingleArticle
+  getSingleArticle,
+  getSingleComment
 };

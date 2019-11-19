@@ -62,18 +62,19 @@ after(() => connection.destroy());
         });
       });
       
-      describe.only('/articles', () => {
+      describe('/articles', () => {
       it("GET:200, /:article_id responds with the requested article", () => {
         return request(app)
          .get("/api/articles/4")
         .expect(200)
         .then(({body}) => {
-          console.log(body)
-        //   // expect(body.user[0].username).to.eql("lurker")
+          expect(body.article[0].topic).to.eql("mitch")
       });
     })
+    // it('GET:200, / articles/:article_id/comments', () => {
+      
+    // }); 
   });
-
 
 
   
@@ -95,6 +96,18 @@ describe("/comments", () => {
         );
       });
   });
+
+describe.only('/comments', () => {
+      it("GET:200, /:comment_id responds with the requested comment", () => {
+        return request(app)
+         .get("/api/comments/11")
+        .expect(200)
+        .then(({body}) => { console.log(body);
+          expect(body.comment[0].title).to.eql("Am I a cat?")
+      })
+      });
+    })
+
 });
 
 });

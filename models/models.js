@@ -24,3 +24,9 @@ exports.grabArticle = (article_id) => {
 exports.selectComments = () => {
   return connection.select("*").from("comments");
 };
+exports.grabComment = comment_id => {
+  return connection
+    .select("*")
+    .from("comments")
+    .where("comment_id", comment_id);
+};
