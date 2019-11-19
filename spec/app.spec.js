@@ -15,7 +15,6 @@ after(() => connection.destroy());
       .expect(200)
       .then(({body}) => {
         expect(body.topics[0]).to.contain.keys("description", "slug")
-        console.log(body)
       })
     });
   })
@@ -30,6 +29,19 @@ after(() => connection.destroy());
           expect(body.users[0]).to.contain.keys("username","name","avatar_url")
         });
     });
+    describe('/users', () => {
+      it("GET:200, /:username responds with the requested user", () => {
+        return request(app)
+         .get("/api/users/lurker")
+        .expect(200)
+        .then(({body}) => {
+          console.log(body.user)
+          expect(body.user[0].username).to.eql("lurker")
+      });
+      
+    });
+  });
+
   });
 
 
@@ -48,7 +60,23 @@ after(() => connection.destroy());
             "created_at"
           );
         });
-    });
+      });
+      
+      describe.only('/articles', () => {
+      it("GET:200, /:article_id responds with the requested article", () => {
+        return request(app)
+         .get("/api/articles/4")
+        .expect(200)
+        .then(({body}) => {
+          console.log(body)
+        //   // expect(body.user[0].username).to.eql("lurker")
+      });
+    })
+  });
+
+
+
+  
   });
 
 describe("/comments", () => {
@@ -56,16 +84,16 @@ describe("/comments", () => {
     return request(app)
       .get("/api/comments")
       .expect(200)
-      .then(({ body }) => {console.log(body)})
-      //   expect(body.comments[0]).to.contain.keys(
-      //     "comment_id",
-      //     "author",
-      //     "article_id",
-      //     "votes",
-      //     "body",
-      //     "created_at"
-      //   );
-      // });
+      .then(({ body }) => {
+        expect(body.comments[0]).to.contain.keys(
+          "comment_id",
+          "author",
+          "article_id",
+          "votes",
+          "body",
+          "created_at"
+        );
+      });
   });
 });
 

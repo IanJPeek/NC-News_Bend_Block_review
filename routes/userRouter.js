@@ -1,8 +1,10 @@
 const userRouter = require("express").Router();
 
-const { getUsers } = require("../controllers/controllers");
+const { getUsers, getSingleUser } = require("../controllers/controllers");
 
 userRouter.route("/").get(getUsers);
+userRouter.route("/:username").get(getSingleUser);
+
 
 console.log("users found");
 

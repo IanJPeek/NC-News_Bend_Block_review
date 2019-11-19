@@ -1,4 +1,11 @@
-const {selectTopics, selectUsers, selectArticles, selectComments} = require("../models/models")
+const {
+  selectTopics,
+  selectUsers,
+  selectArticles,
+  selectComments,
+  grabUser,
+  grabArticle
+} = require("../models/models");
 
 const getTopics = (req, res, next) => {
   selectTopics(req.query)
@@ -16,11 +23,26 @@ const getUsers = (req, res, next) => {
   });
 };
 
+const getSingleUser = (req, res, next) => {
+  const {username} = req.params
+  grabUser(username).then(user => {
+    res.status(200).send({ user });
+  });
+};
+
 const getArticles = (req, res, next) => {
   selectArticles(req.query)
   .then(articles => {
     res.status(200)
     .send({ articles });
+  });
+};
+
+const getSingleArticle = (req, res, next) => {
+  console.log ("in controller single article")
+  const { article_id } = req.params;
+  grabArticle(article_id).then(article => {
+    res.status(200).send({ article });
   });
 };
 
@@ -30,4 +52,11 @@ const getComments = (req, res, next) => {
   });
 };
 
-module.exports = { getTopics, getUsers, getArticles, getComments };
+module.exports = {
+  getTopics,
+  getUsers,
+  getArticles,
+  getComments,
+  getSingleUser,
+  getSingleArticle
+};
