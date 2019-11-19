@@ -45,7 +45,10 @@ exports.seed = function(knex) {
       .then((articles) => {
         const lookup = makeRefObj(articles);
         const formattedComments = formatComments(commentData, lookup);
-        console.log(formattedComments)
+        // console.log(formattedComments)
+        return knex("comments")
+        .insert(formattedComments)
+        .returning("*")
       })
   );
 
