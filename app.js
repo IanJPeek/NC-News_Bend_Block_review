@@ -11,13 +11,17 @@ app.use("/api", apiRouter);
 
 
 
-// PSQL error handler - eg string instead of number
+// PSQL error handler - eg string instead of number/ number instead of string
 app.use((err, req, res, next) => {
   console.log("PSQL", err);
   if (err.code === "22P02"){
-    res.status(400).send({msg:"invalid (bad) article request - numbers only"})
+    res.status(400).send({msg:"invalid (bad) request - ids: numbers only; votes: I need your number, no strings ;)"})
   }
-  else next(err)
+  if (err.code === "22003") {
+    res
+      .status(404)
+      .send({ msg: "No such article found - MUCH lower number please!" });
+  } else next(err);
 });
 
 //custom error handler

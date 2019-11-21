@@ -1,5 +1,13 @@
 const connection = require("../db/connection");
 
+exports.errRoute = () => {
+  console.log("bad control");
+  return {
+    msg: "Bad Request - Invalid user ID",
+    status: 404
+  };
+};
+
 exports.selectTopics = () => {
   return connection.select("*").from("topics");
 };
@@ -23,30 +31,64 @@ exports.grabUser = username => {
     });
 };
 
-exports.selectArticles = () => {
-  return connection.select("*").from("articles");
+exports.selectArticles = ({sort_by}) => {
+  return connection
+    .select("articles.*")
+    .from("articles")
+    .leftJoin("comments", "articles.article_id", "=", "comments.article_id")
+    .count("comment_id AS comment_count")
+    .groupBy("articles.article_id")
+    .orderBy(sort_by || "created_at", "asc")
+    .returning("*")
+    .then(joinedArtComms => {
+      console.log(joinedArtComms);
+      return joinedArtComms;
+    });
 };
+
 exports.grabArticle = article_id => {
+  return connection
+    .select("articles.*")
+    .from("articles")
+    .where("articles.article_id", article_id)
+    .leftJoin("comments", "articles.article_id", "=", "comments.article_id")
+    .count("comment_id AS comment_count")
+    .groupBy("articles.article_id")
+    .orderBy("articles.article_id")
+    .then(article => {console.log(article)
+      if (article.length === 0) {
+        return Promise.reject({
+          msg: "Bad Request - Invalid article number",
+          status: 404
+        });
+      }
+      return article;
+    });
+};
+exports.adjustArticleVote = (article_id, adjustNumber) => {
+  console.log(adjustNumber, "adjustNumber")
   return connection
     .select("*")
     .from("articles")
     .where("article_id", article_id)
-    .then(article => {
+    .increment("votes", adjustNumber)
+    .returning("*")
+    .then(article => {console.log(article, "article")
       if (article.length === 0) {
-        return Promise.reject({msg: "Bad Request - Invalid article number", status: 404})
+        return Promise.reject({
+          msg: "Bad Request - Invalid article number",
+          status: 404
+        });
       }
-      return article
+      if (typeof adjustNumber !== "number") {
+        return Promise.reject({
+          msg: "I need your number, no strings ;)",
+          status: 422
+        });
+      }
+      return { article, msg: "Votes recounted" };
     });
 };
-exports.adjustArticleVote = (article_id, adjustNumber) => {
-  return connection.select("*").from("articles")
-  .where("article_id", article_id)  
-  .increment("votes", adjustNumber)
-  .returning("*")
-  .then(article =>{
-    return {article, msg: "Votes recounted"}
-  })
-}
 exports.postNewArticleComment = (article_id, user, comment) => {
   return connection
     .select("*")
@@ -54,11 +96,21 @@ exports.postNewArticleComment = (article_id, user, comment) => {
     .where("article_id", article_id)
     .insert({ title: "thoughts", author: user, body: comment })
     .returning("*")
-    .then(newCommentedArticle =>{
+    .then(newCommentedArticle => {
       // console.log(newCommentedArticle)
       return { newCommentedArticle };
     });
-}
+};
+exports.selectArticleComments = ({ sort_by }) => {
+  return connection
+    .select("*")
+    .from("comments")
+    .orderBy(sort_by || "created_at", "desc")
+    .returning("*")
+    .then(artComment => {
+      return { artComment };
+    });
+};
 
 exports.selectComments = () => {
   return connection.select("*").from("comments");

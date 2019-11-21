@@ -1,14 +1,23 @@
 const {
+  errRoute,
   selectTopics,
   selectUsers,
   selectArticles,
   selectComments,
   grabUser,
   grabArticle,
+  selectArticleComments,
   grabComment,
   adjustArticleVote,
   postNewArticleComment
 } = require("../models/models");
+
+const badRoute = (req,res,next) =>{
+  console.log("bad models")
+  errRoute(req).then((errReturn) => {console.log(errReturn)
+  res.status(404).send({ msg: "404 Not Found - That aint a thing" });
+})
+}
 
 const getTopics = (req, res, next) => {
   selectTopics(req.query)
@@ -47,10 +56,36 @@ const getSingleArticle = (req, res, next) => {
 };
 const increaseArticleVotes = (req,res,next) => {
   const { article_id } = req.params;
-  const adjustment = req.inc_votes
+  // expect the object to "have key - inc_votes, otherwise return teapot error"
+  // console.log(req.body)
+  // console.log(Object.keys(req.body))
+  const objectKeys = Object.keys(req.body);
+  // console.log(objectKeys)
+
+  if (objectKeys.includes("inc_votes") === false) 
+  
+  //  not this, but why..?
+  // {Promise.reject({
+  //   msg: "I'm a teapot - wrong method for getting what you're after", status:418
+  // })}
+  
+  {
+  //   const teapotError = {
+  //   msg: "I'm a teapot - wrong method for getting what you're after", status:418
+  // }
+  res
+    .status(418)
+    .send({msg: "I'm a teapot - wrong method for getting what you're after" });
+}
+if (objectKeys.length > 1) {
+  res
+    .status(422)
+    .send({ msg: "Almost a-okay... but save your something extra" });
+}
+  const adjustment = req.body.inc_votes;
   adjustArticleVote(article_id, adjustment).then(update => { 
-    res.status(202).send(update) //check...
-  })
+    res.status(202).send(update) 
+  }).catch(next)
 }
 const addArticleComment = (req,res,next) => {
 const { article_id } = req.params;
@@ -60,6 +95,12 @@ postNewArticleComment(article_id, user, comment)
 .then(commentedArticle => {
   res.status(201).send({commentedArticle})
 })
+}
+const getArticleComments =(req,res, next) => {
+selectArticleComments(req.query).then(artComments => {
+  res.status(200).send({artComments})
+})
+
 }
 
 const getComments = (req, res, next) => { 
@@ -75,9 +116,11 @@ const getSingleComment = (req, res, next) => {
 };
 
 module.exports = {
+  badRoute,
   getTopics,
   getUsers,
   getArticles,
+  getArticleComments,
   getComments,
   getSingleUser,
   getSingleArticle,
