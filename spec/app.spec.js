@@ -123,7 +123,7 @@ describe("/api", () => {
         .get("/api/articles?sort_by=votes&order_by=asc")
         .expect(200)
         .then(({ body }) => {
-          console.log(body, "tests");
+          // console.log(body, "tests");
           expect(body.articles).to.be.ascendingBy("votes");
         });
     });
@@ -141,7 +141,7 @@ describe("/api", () => {
         .get("/api/articles?topic=mitch")
         .expect(200)
         .then(({ body }) => {
-          console.log(body, "tests");
+          // console.log(body, "tests");
           expect(body.articles[0].topic).to.equal("mitch");
           expect(body.articles[5].topic).to.equal("mitch");
         });
@@ -174,7 +174,7 @@ describe("/api", () => {
           .get("/api/articles/5")
           .expect(200)
           .then(({ body }) => {
-            console.log(body);
+            // console.log(body);
             expect(body.article[0]).to.contain.keys(
               "article_id",
               "title",
@@ -409,7 +409,7 @@ describe("/api", () => {
       .send({ inc_votes: 1 })
       .expect(202)
       .then(({ body }) => {
-        console.log(body.comment);
+        // console.log(body.comment);
         expect(body.msg).to.equal("Votes recounted");
         expect(body.comment[0]).to.eql({
           comment_id: 3,
@@ -429,7 +429,7 @@ describe("/api", () => {
       .send({ inc_votes: -40 })
       .expect(202)
       .then(({ body }) => {
-        console.log(body.comment);
+        // console.log(body.comment);
         //why now null author/ article_id..?
         expect(body.msg).to.equal("Votes recounted");
         expect(body.comment[0]).to.eql({

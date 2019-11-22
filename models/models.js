@@ -1,7 +1,7 @@
 const connection = require("../db/connection");
 
 exports.errRoute = () => {
-  console.log("bad control");
+  // console.log("bad control");
   return {
     msg: "Bad Request - Invalid user ID",
     status: 404
@@ -33,7 +33,7 @@ exports.grabUser = username => {
 
 exports.selectArticles = (query) => {
   const { sort_by, order_by, author, topic } = query
-  console.log(sort_by);
+  // console.log(sort_by);
   return connection
     .select("articles.*")
     .from("articles")
@@ -60,7 +60,8 @@ exports.grabArticle = article_id => {
     .count("comment_id AS comment_count")
     .groupBy("articles.article_id")
     .orderBy("articles.article_id")
-    .then(article => {console.log(article)
+    .then(article => {
+      // console.log(article)
       if (article.length === 0) {
         return Promise.reject({
           msg: "Bad Request - Invalid article number",
@@ -78,7 +79,8 @@ exports.adjustArticleVote = (article_id, adjustNumber) => {
     .where("article_id", article_id)
     .increment("votes", adjustNumber)
     .returning("*")
-    .then(article => {console.log(article, "article")
+    .then(article => {
+      // console.log(article, "article")
       if (article.length === 0) {
         return Promise.reject({
           msg: "Bad Request - Invalid article number",
