@@ -31,17 +31,22 @@ exports.grabUser = username => {
     });
 };
 
-exports.selectArticles = ({sort_by}) => {
+exports.selectArticles = (query) => {
+  const { sort_by, order_by, author, topic } = query
+  console.log(sort_by);
   return connection
     .select("articles.*")
     .from("articles")
     .leftJoin("comments", "articles.article_id", "=", "comments.article_id")
     .count("comment_id AS comment_count")
     .groupBy("articles.article_id")
-    .orderBy(sort_by || "created_at", "asc")
+    .modify(query => {
+      if (author) query.where("articles.author", author)
+      if (topic) query.where("articles.topic", topic);
+    })
+    .orderBy(sort_by || 'created_at', order_by || "desc")
     .returning("*")
     .then(joinedArtComms => {
-      console.log(joinedArtComms);
       return joinedArtComms;
     });
 };
@@ -96,9 +101,9 @@ exports.postNewArticleComment = (article_id, user, comment) => {
     .where("article_id", article_id)
     .insert({ title: "thoughts", author: user, body: comment })
     .returning("*")
-    .then(newCommentedArticle => {
-      // console.log(newCommentedArticle)
-      return { newCommentedArticle };
+    .then(commentedArticle => {
+      // console.log(commentedArticle)
+      return commentedArticle;
     });
 };
 exports.selectArticleComments = ({ sort_by }) => {
@@ -108,7 +113,7 @@ exports.selectArticleComments = ({ sort_by }) => {
     .orderBy(sort_by || "created_at", "desc")
     .returning("*")
     .then(artComment => {
-      return { artComment };
+      return artComment;
     });
 };
 
@@ -121,3 +126,28 @@ exports.grabComment = comment_id => {
     .from("comments")
     .where("comment_id", comment_id);
 };
+exports.adjustCommentVote = (comment_id, adjustNumber) => {
+  // console.log(adjustNumber, "adjustNumber");
+  return connection
+    .select("*")
+    .from("comments")
+    .where("comment_id", comment_id)
+    .increment("votes", adjustNumber)
+    .returning("*")
+    .then(comment => {
+      return { comment, msg: "Votes recounted" };
+    });
+};
+exports.removeComment = (comment_id) => {
+  return connection('comments').where({comment_id})
+  .del()
+  .then((rowsDeleted) => {
+    if (rowsDeleted === 0) {
+      return Promise.reject({
+        status: 404,
+        msg: "comment not found"
+      })
+    }
+    return rowsDeleted
+  })
+}

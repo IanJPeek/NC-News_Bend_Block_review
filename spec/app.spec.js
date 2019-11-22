@@ -61,7 +61,6 @@ describe("/api", () => {
       });
     });
 
-    //why two responses... PSQL & custom?
     it("ERROR HANDLES - GET for an invalid user_id - status:404 and error message", () => {
       return request(app)
         .get("/api/users/bogusID")
@@ -74,7 +73,7 @@ describe("/api", () => {
 
   //ARTICLES
   describe("/articles", () => {
-    it("GET:200, responds with an array of articles, default sorted by date from the earliest", () => {
+    it("GET:200, responds with an array of articles, default sorted by date from the most recent", () => {
       return request(app)
         .get("/api/articles")
         .expect(200)
@@ -89,30 +88,64 @@ describe("/api", () => {
             "comment_count"
           );
           expect(body.articles[0]).to.eql({
-             article_id: 12,
-             title: 'Moustache',
-             body: 'Have you seen the size of that thing?',
-             votes: 0,
-             topic: 'mitch',
-             author: 'butter_bridge',
-             created_at: "1974-11-26T12:21:54.171Z",
-             comment_count: '0'
-          })
+            article_id: 1,
+            title: "Living in the shadow of a great man",
+            body: "I find this existence challenging",
+            votes: 100,
+            topic: "mitch",
+            author: "butter_bridge",
+            created_at: "2018-11-15T12:21:54.171Z",
+            comment_count: "13"
+          });
           expect(body.articles[1]).to.eql({
-          article_id: 11,
-          title: 'Am I a cat?',
-          body: 'Having run out of ideas for articles, I am staring at the wall blankly, like a cat. Does this make me a cat?',
-          votes: 0,
-          topic: 'mitch',
-          author: 'icellusedkars',
-          created_at: "1978-11-25T12:21:54.171Z",
-          comment_count: '0'
-         })
+            article_id: 2,
+            title: "Sony Vaio; or, The Laptop",
+            body:
+              "Call me Mitchell. Some years ago—never mind how long precisely—having little or no money in my purse, and nothing particular to interest me on shore, I thought I would buy a laptop about a little and see the codey part of the world. It is a way I have of driving off the spleen and regulating the circulation. Whenever I find myself growing grim about the mouth; whenever it is a damp, drizzly November in my soul; whenever I find myself involuntarily pausing before coffin warehouses, and bringing up the rear of every funeral I meet; and especially whenever my hypos get such an upper hand of me, that it requires a strong moral principle to prevent me from deliberately stepping into the street, and methodically knocking people’s hats off—then, I account it high time to get to coding as soon as I can. This is my substitute for pistol and ball. With a philosophical flourish Cato throws himself upon his sword; I quietly take to the laptop. There is nothing surprising in this. If they but knew it, almost all men in their degree, some time or other, cherish very nearly the same feelings towards the the Vaio with me.",
+            votes: 0,
+            topic: "mitch",
+            author: "icellusedkars",
+            created_at: "2014-11-16T12:21:54.171Z",
+            comment_count: "0"
+          });
         });
-      });
-      it('will accept queries ', () => {
-        
-      });
+    });
+    it("GET:200 - QUERY, responds with an array of articles, sorted according to a valid column (defaulting to descending)", () => {
+      return request(app)
+        .get("/api/articles?sort_by=votes")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.articles).to.be.descendingBy("votes");
+        });
+    });
+    it("GET:200 - QUERY, responds with an array of articles, sorted according to a valid column, in ascending order when requested", () => {
+      return request(app)
+        .get("/api/articles?sort_by=votes&order_by=asc")
+        .expect(200)
+        .then(({ body }) => {
+          console.log(body, "tests");
+          expect(body.articles).to.be.ascendingBy("votes");
+        });
+    });
+    it("GET:200 - QUERY, responds with an array of articles, filtered by the username value requested", () => {
+      return request(app)
+        .get("/api/articles?author=icellusedkars")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.articles[0].author).to.equal("icellusedkars");
+          expect(body.articles[4].author).to.equal("icellusedkars");
+        });
+    });
+    it("GET:200 - QUERY, responds with an array of articles, filtered by the topic value requested", () => {
+      return request(app)
+        .get("/api/articles?topic=mitch")
+        .expect(200)
+        .then(({ body }) => {
+          console.log(body, "tests");
+          expect(body.articles[0].topic).to.equal("mitch");
+          expect(body.articles[5].topic).to.equal("mitch");
+        });
+    });
 
     //should accept queries...
 
@@ -140,7 +173,8 @@ describe("/api", () => {
         return request(app)
           .get("/api/articles/5")
           .expect(200)
-          .then(({ body }) => {console.log(body)
+          .then(({ body }) => {
+            console.log(body);
             expect(body.article[0]).to.contain.keys(
               "article_id",
               "title",
@@ -154,8 +188,6 @@ describe("/api", () => {
           });
       });
 
-      // implement "comment count"...
-
       it("ERROR HANDLES - returns a PSQL error code & handles this for an article that doesn't exist (eg number too high)", () => {
         return request(app)
           .get("/api/articles/10000000000")
@@ -167,7 +199,6 @@ describe("/api", () => {
           });
       });
       // ignore error test? - marginally too high number handled in the same way as non-existent number/ string?...
-
       // it.only("ERROR HANDLES - returns a 404 error code for an article that don't exist (where number is too high, but not ridiculously so...)", () => {
       //   return request(app)
       //     .get("/api/articles/324")
@@ -180,12 +211,10 @@ describe("/api", () => {
       // });
 
       it("Responds to a patch request to increase the number of votes", () => {
-        // why would a faulty request increment by 1/ pass the test?
         return request(app)
           .patch("/api/articles/7")
           .send({ inc_votes: 1 })
           .expect(202)
-
           .then(({ body }) => {
             expect(body.msg).to.equal("Votes recounted");
             expect(body.article[0]).to.eql({
@@ -205,9 +234,7 @@ describe("/api", () => {
           .patch("/api/articles/7")
           .send({ inc_votes: 100 })
           .expect(202)
-
           .then(({ body }) => {
-            console.log(body);
             expect(body.msg).to.equal("Votes recounted");
             expect(body.article[0]).to.eql({
               article_id: 7,
@@ -226,9 +253,7 @@ describe("/api", () => {
           .patch("/api/articles/7")
           .send({ inc_votes: -50 })
           .expect(202)
-
           .then(({ body }) => {
-            console.log(body);
             expect(body.msg).to.equal("Votes recounted");
             expect(body.article[0]).to.eql({
               article_id: 7,
@@ -242,7 +267,6 @@ describe("/api", () => {
           });
       });
 
-      //why two error responses?
       it("ERROR HANDLES - returns a 404 for an attempt to PATCH the number of votes for an invalid article /id number which does not exist", () => {
         return request(app)
           .patch("/api/articles/4003/")
@@ -277,10 +301,6 @@ describe("/api", () => {
           });
       });
 
-      /*
-Some other property on request body (e.g. { inc_votes : 1, name: 'Mitch' })
-    */
-      // is the below dangerous to allow? - 'dodgy'/ malicious insertions?
       it("ERROR HANDLES - rejects an object which includes a correct 'inc_votes' key/ value pair, but also provides additional keys or properties ", () => {
         return request(app)
           .patch("/api/articles/5/")
@@ -293,7 +313,7 @@ Some other property on request body (e.g. { inc_votes : 1, name: 'Mitch' })
           });
       });
 
-      it("Responds to a POST comment request with an appropriate status and the posted comment", () => {
+      it("Responds to a POST comment request with a 201 status and the posted comment", () => {
         return request(app)
           .post("/api/articles/4/comments")
           .send({
@@ -302,20 +322,15 @@ Some other property on request body (e.g. { inc_votes : 1, name: 'Mitch' })
           })
           .expect(201)
           .then(({ body }) => {
-            // clunky body. ... quick way to shorten?
-            console.log(body.commentedArticle.newCommentedArticle[0]);
+            expect(body.comment[0]).to.contain({
+              article_id: 13,
+              title: "thoughts",
+              body: "My thoughts exactly! -Exactly the entire opposite.",
+              votes: 0,
+              topic: null,
+              author: "butter_bridge"
+            });
           });
-        // how to pass below test with 'created at - now...?'
-        // expect(
-        //   body.commentedArticle.newCommentedArticle[0]).to.eql({
-        //     article_id: 13,
-        //     title: "thoughts",
-        //     body: "My thoughts exactly! -Exactly the entire opposite.",
-        //     votes: 0,
-        //     topic: null,
-        //     author: "butter_bridge",
-        //     created_at: '2019-11-21T06:27:53.026Z'
-        //   });
       });
 
       //POST error-handling
@@ -329,23 +344,23 @@ Some other property on request body (e.g. { inc_votes : 1, name: 'Mitch' })
           .get("/api/articles/:article_id/comments")
           .expect(200)
           .then(({ body }) => {
-            expect(body.artComments.artComment[0]).to.contain.keys(
+            expect(body.comment[0]).to.contain.keys(
               "comment_id",
               "votes",
               "body",
-              "author", //which is username from the users table
+              "author",
               "created_at"
             );
           });
       });
-     
+
       // passes individually (.only), but fails when run as part of test-suite??
       it("GET:200, responds to a GET request with an array of comments default sorted by most recently created", () => {
         return request(app)
           .get("/api/articles/5/comments")
           .expect(200)
           .then(({ body }) => {
-            expect(body.artComments.artComment[0]).to.eql({
+            expect(body.comment[0]).to.eql({
               comment_id: 1,
               author: "butter_bridge",
               article_id: 9,
@@ -354,7 +369,7 @@ Some other property on request body (e.g. { inc_votes : 1, name: 'Mitch' })
               body:
                 "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!"
             });
-            expect(body.artComments.artComment[1]).to.eql({
+            expect(body.comment[1]).to.eql({
               comment_id: 2,
               author: "butter_bridge",
               article_id: 1,
@@ -387,11 +402,70 @@ Some other property on request body (e.g. { inc_votes : 1, name: 'Mitch' })
         });
     });
   });
+
+  it("PATCH:202 - api/comments/:comment_id responds to a patch request to increase the number of votes", () => {
+    return request(app)
+      .patch("/api/comments/3")
+      .send({ inc_votes: 1 })
+      .expect(202)
+      .then(({ body }) => {
+        console.log(body.comment);
+        expect(body.msg).to.equal("Votes recounted");
+        expect(body.comment[0]).to.eql({
+          comment_id: 3,
+          author: "icellusedkars",
+          article_id: 1,
+          votes: 101,
+          created_at: "2015-11-23T12:36:03.389Z",
+          body:
+            "Replacing the quiet elegance of the dark suit and tie with the casual indifference of these muted earth tones is a form of fashion suicide, but, uh, call me crazy — onyou it works."
+        });
+      });
+  });
+
+  it("Responds to a patch request to increase the number of votes by a negative quantity", () => {
+    return request(app)
+      .patch("/api/comments/3")
+      .send({ inc_votes: -40 })
+      .expect(202)
+      .then(({ body }) => {
+        console.log(body.comment);
+        //why now null author/ article_id..?
+        expect(body.msg).to.equal("Votes recounted");
+        expect(body.comment[0]).to.eql({
+          comment_id: 3,
+          author: "icellusedkars",
+          article_id: 1,
+          votes: 60,
+          created_at: "2015-11-23T12:36:03.389Z",
+          body:
+            "Replacing the quiet elegance of the dark suit and tie with the casual indifference of these muted earth tones is a form of fashion suicide, but, uh, call me crazy — onyou it works."
+        });
+      });
+  });
+  it('Deletes a given comment "/api/ comments/:comment_id" by comment_id', () => {
+    return request(app)
+      .delete("/api/comments/2")
+      .expect(204);
+  });
+  it("ERROR HANDLES: responds with a 404 not found when asked to delete a non-existent comment", () => {
+    return request(app)
+      .delete("/api/comments/303")
+      .expect(404);
+  });
+  it("ERROR HANDLES: (suing PSQL) responds with a 400 when asked to delete a comment-id which is eg not a number", () => {
+    return request(app)
+      .delete("/api/comments/mysterymusing")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).to.equal(
+          "invalid (bad) request - ids: numbers only; votes: I need your number, no strings ;)"
+        );
+      });
+  });
 });
 
-
-
 // TO SORT - GET /api/articles accepts queries
-//  Error-handling...
 
-//  DELETE
+// Un-nest test responses/ uncomplicate bodies/ returns
+// Further Error-handling - standard cases - fringe/ extra cases...
