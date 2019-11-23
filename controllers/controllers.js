@@ -63,28 +63,15 @@ const getSingleArticle = (req, res, next) => {
 };
 const increaseArticleVotes = (req,res,next) => {
   const { article_id } = req.params;
-  // expect the object to "have key - inc_votes, otherwise return teapot error"
-  // console.log(req.body)
-  // console.log(Object.keys(req.body))
+  
   const objectKeys = Object.keys(req.body);
-  // console.log(objectKeys)
 
   if (objectKeys.includes("inc_votes") === false) {
-  
-  //  not this, but why..?
-  //   Promise.reject({
-  //   msg: "I'm a teapot - wrong method for getting what you're after", status:418
-  // })}
-  
-  
-  //   const teapotError = {
-  //   msg: "I'm a teapot - wrong method for getting what you're after", status:418
-  // }
-  res
-    .status(418)
-    .send({msg: "I'm a teapot - wrong method for getting what you're after" });
-}
-if (objectKeys.length > 1) {
+  res.status(418)
+  .send({msg: "I'm a teapot - wrong method for getting what you're after" });
+  }
+
+  if (objectKeys.length > 1) {
   res
     .status(422)
     .send({ msg: "Almost a-okay... but save your something extra" });

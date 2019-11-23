@@ -11,4 +11,7 @@ apiRouter.use("/articles", articleRouter);
 apiRouter.use("/comments", commentRouter);
 // apiRouter.use("/*", badRouter);
 
+apiRouter.all("/*", (req, res, next) => res.status(405).send({msg: "method not allowed"})
+);
+
 module.exports = apiRouter;

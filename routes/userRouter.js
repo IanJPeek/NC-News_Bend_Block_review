@@ -8,4 +8,7 @@ userRouter.route("/:username").get(getSingleUser);
 
 console.log("users found");
 
+userRouter.all("/*", (req, res, next) =>
+  res.status(405).send({msg: "method not allowed"}));
+
 module.exports = userRouter;

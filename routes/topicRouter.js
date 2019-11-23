@@ -6,4 +6,8 @@ topicRouter.route("/").get(getTopics)
 
 console.log("topics found")
 
+topicRouter.all("/*", (req, res, next) =>
+  res.status(405).send({msg: "method not allowed"})
+);
+
 module.exports = topicRouter

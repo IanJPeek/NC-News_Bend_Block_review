@@ -31,10 +31,6 @@ app.use((err, req, res, next) => {
   res.status(err.status).send({ msg: err.msg });
 });
 
-// 404 handler
-// app.use('/*', (err,req, res, next) => {res.status(404).send({msg: "404 Not Found - That aint a thing"})
-// })
-
 app.all("/*", (req, res, next) => res.status(404).send("route not found"));
 
 module.exports = app;

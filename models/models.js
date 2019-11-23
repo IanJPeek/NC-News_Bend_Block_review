@@ -72,7 +72,6 @@ exports.grabArticle = article_id => {
     });
 };
 exports.adjustArticleVote = (article_id, adjustNumber) => {
-  console.log(adjustNumber, "adjustNumber")
   return connection
     .select("*")
     .from("articles")
@@ -80,7 +79,6 @@ exports.adjustArticleVote = (article_id, adjustNumber) => {
     .increment("votes", adjustNumber)
     .returning("*")
     .then(article => {
-      // console.log(article, "article")
       if (article.length === 0) {
         return Promise.reject({
           msg: "Bad Request - Invalid article number",
@@ -109,6 +107,7 @@ exports.postNewArticleComment = (article_id, user, comment) => {
     });
 };
 exports.selectArticleComments = ({ sort_by }) => {
+  // destructure as above
   return connection
     .select("*")
     .from("comments")

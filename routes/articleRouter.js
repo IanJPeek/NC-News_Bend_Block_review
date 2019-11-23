@@ -18,4 +18,8 @@ articleRouter.route("/:article_id/comments")
 
 console.log("articles found")
 
+articleRouter.all("/*", (req, res, next) =>
+  res.status(405).send({ msg: "method not allowed" })
+);
+
 module.exports = articleRouter;

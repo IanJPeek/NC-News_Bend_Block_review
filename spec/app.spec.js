@@ -9,10 +9,34 @@ const connection = require("../db/connection");
 
 chai.use(chaiSorted);
 
+
 describe("/api", () => {
   beforeEach(() => connection.seed.run());
   after(() => connection.destroy());
+  
+    describe("/*", () => {
+      //seems not to take route?
+      // better/ simpler way to error handle this?
+      xit("Error handles an invalid route with a 404 response", () => {
+        return request(app)
+          .get("/api/anyOldThingYouDontGot")
+          .expect(404)
+          .then(({ body }) => {
+            expect(body.msg).to.equal("404 Not Found - That aint a thing");
+          });
+      });
+    });
 
+    it.only("ERROR HANDLES invalid methods - eg an attempt to DELETE on api/", () => {
+      return request(app)
+        .delete("/api")
+        .expect(405)
+        .then(({ body }) => {
+          expect(body.msg).to.equal("method not allowed");
+        });
+    });
+
+  // TOPICS
   describe("/topics", () => {
     it("GET:200, responds with an array of topics", () => {
       return request(app)
@@ -24,18 +48,15 @@ describe("/api", () => {
     });
   });
 
-  describe("/*", () => {
-    //seems not to take route?
-    // better/ simpler way to error handle this?
-    xit("Error handles an invalid route with a 404 response", () => {
-      return request(app)
-        .get("/api/anyOldThingYouDontGot")
-        .expect(404)
-        .then(({ body }) => {
-          expect(body.msg).to.equal("404 Not Found - That aint a thing");
-        });
-    });
-  });
+  it('ERROR HANDLES invalid methods - eg an attempt to PATCH on api/topics', () => {
+    return request(app)
+      .patch("/api/topics")
+      .send({ msg: "these words aint a patch on you" })
+      .expect(405)
+      .then(({ body }) => {
+        expect(body.msg).to.equal("method not allowed")
+      });
+});
 
   describe("/users", () => {
     it("GET:200, responds with an array of users", () => {
@@ -69,6 +90,24 @@ describe("/api", () => {
           expect(body.msg).to.equal("Bad Request - Invalid user ID");
         });
     });
+
+    it("ERROR HANDLES invalid methods - eg an attempt to PUT on api/users/butter_bridge", () => {
+    return request(app)
+      .put("/api/users/butter_bridge")
+      .send({
+        username: "butter_bridge",
+        name: "Mr Butter Pants",
+        avatar_url:
+          "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
+      })
+      .expect(405)
+      .then(({ body }) => {
+        expect(body.msg).to.equal("method not allowed");
+      });
+    })
+  
+    
+    
   });
 
   //ARTICLES
@@ -110,6 +149,7 @@ describe("/api", () => {
           });
         });
     });
+
     it("GET:200 - QUERY, responds with an array of articles, sorted according to a valid column (defaulting to descending)", () => {
       return request(app)
         .get("/api/articles?sort_by=votes")
@@ -136,18 +176,26 @@ describe("/api", () => {
           expect(body.articles[4].author).to.equal("icellusedkars");
         });
     });
+
     it("GET:200 - QUERY, responds with an array of articles, filtered by the topic value requested", () => {
       return request(app)
         .get("/api/articles?topic=mitch")
         .expect(200)
         .then(({ body }) => {
-          // console.log(body, "tests");
           expect(body.articles[0].topic).to.equal("mitch");
           expect(body.articles[5].topic).to.equal("mitch");
         });
     });
 
-    //should accept queries...
+    it('ERROR HANDLES invalid methods - eg an attempt to PATCH on api/articles', () => {
+    return request(app)
+      .patch("/api/articles")
+      .send({ msg: "these words aint a patch on you" })
+      .expect(405)
+      .then(({ body }) => {
+        expect(body.msg).to.equal("method not allowed")
+      });
+    })
 
     describe("/articles", () => {
       it("GET:200, /:article_id responds with the requested article", () => {
@@ -169,12 +217,12 @@ describe("/api", () => {
           });
       });
 
-      it("GET:200, for a specific article responds with that articles, including a comment count key/ value pair", () => {
+
+      it("GET:200, for a specific article responds with that article (including a comment count key/ value pair)", () => {
         return request(app)
           .get("/api/articles/5")
           .expect(200)
           .then(({ body }) => {
-            // console.log(body);
             expect(body.article[0]).to.contain.keys(
               "article_id",
               "title",
@@ -313,6 +361,24 @@ describe("/api", () => {
           });
       });
 
+      it("ERROR HANDLES invalid methods - eg an attempt to PUT on api/articles", () => {
+         return request(app)
+           .put("/api/articles")
+           .send({
+             comment_id: 1,
+             author: "butter_bridge",
+             article_id: 9,
+             votes: 16,
+             created_at: "2017-11-22T12:36:03.389Z",
+             body:
+               "Oh, I've got a runny nose! Also, I'm a sultana!"
+           })
+           .expect(405)
+           .then(({ body }) => {
+             expect(body.msg).to.equal("method not allowed");
+           });
+       });
+
       it("Responds to a POST comment request with a 201 status and the posted comment", () => {
         return request(app)
           .post("/api/articles/4/comments")
@@ -333,11 +399,23 @@ describe("/api", () => {
           });
       });
 
-      //POST error-handling
-
-      // new/ unrecognised user?
-      // default-fill title so not "null"?
-      // responds when article-id does not exist - no. is too high...
+      it("ERROR HANDLES invalid methods - eg an attempt to PUT on api/articles/2/comments", () => {
+        return request(app)
+          .put("/api/articles/1/comments")
+          .send({
+            comment_id: 2,
+            author: "butter_bridge",
+            article_id: 1,
+            votes: 14,
+            created_at: "2016-11-22T12:36:03.389Z",
+            body:
+              "The beautiful thing about treasure is it's SHINY!!!"
+          })
+          .expect(405)
+          .then(({ body }) => {
+            expect(body.msg).to.equal("method not allowed");
+          });
+      });
 
       it("GET:200, responds to a GET request for all comments on a given article_id with an array of comments", () => {
         return request(app)
@@ -409,7 +487,6 @@ describe("/api", () => {
       .send({ inc_votes: 1 })
       .expect(202)
       .then(({ body }) => {
-        // console.log(body.comment);
         expect(body.msg).to.equal("Votes recounted");
         expect(body.comment[0]).to.eql({
           comment_id: 3,
@@ -443,6 +520,26 @@ describe("/api", () => {
         });
       });
   });
+
+  it("ERROR HANDLES invalid methods - eg an attempt to PUT on api/comments", () => {
+    return request(app)
+      .put("/api/comments/3")
+      .send({
+        comment_id: 3,
+        author: "icellusedkars",
+        article_id: 1,
+        votes: 100,
+        created_at: "2015-11-23T12:36:03.389Z",
+        body:
+          "Fashion is the passion of a fruit in a suit."
+      })
+      .expect(405)
+      .then(({ body }) => {
+        expect(body.msg).to.equal("method not allowed");
+      });
+  });
+
+
   it('Deletes a given comment "/api/ comments/:comment_id" by comment_id', () => {
     return request(app)
       .delete("/api/comments/2")
