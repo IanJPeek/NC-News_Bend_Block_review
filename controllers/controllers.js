@@ -7,6 +7,7 @@ const {
   grabUser,
   grabArticle,
   selectArticleComments,
+  checkArticleExists,
   grabComment,
   adjustArticleVote,
   postNewArticleComment,
@@ -47,9 +48,9 @@ const getSingleUser = (req, res, next) => {
 };
 
 const getArticles = (req, res, next) => {
-  console.log(req.query)
-  
-  selectArticles(req.query )
+  // checkArticleExists(req.query).catch(next)
+  // console.log("art exists checked")
+  selectArticles(req.query)
     .then(articles => {
       res.status(200).send({ articles });
     })
@@ -58,7 +59,7 @@ const getArticles = (req, res, next) => {
 const getSingleArticle = (req, res, next) => {
   const { article_id } = req.params;
   grabArticle(article_id).then(article => {
-    res.status(200).send({ article });
+    res.status(200).send({article});
   }).catch(next)
 };
 const increaseArticleVotes = (req,res,next) => {

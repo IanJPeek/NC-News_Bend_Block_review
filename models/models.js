@@ -27,13 +27,23 @@ exports.grabUser = username => {
           status: 404
         });
       }
+      user = user[0]
       return user;
     });
 };
 
+exports.checkArticleExists = query => {
+  const {topic} = query
+  if (topic !== "mitch" || "cats" || "paper") {
+    return Promise.reject({status: 404, msg: "Not Found - That aint a thing"})
+  }
+ return (query)}
+
 exports.selectArticles = (query) => {
   const { sort_by, order_by, author, topic } = query
   // console.log(sort_by);
+// if (topic !== "mitch" || "cats" || "paper")
+// {checkArticleExists(topic)}
   return connection
     .select("articles.*")
     .from("articles")
@@ -41,10 +51,10 @@ exports.selectArticles = (query) => {
     .count("comment_id AS comment_count")
     .groupBy("articles.article_id")
     .modify(query => {
-      if (author) query.where("articles.author", author)
+      if (author) query.where("articles.author", author);
       if (topic) query.where("articles.topic", topic);
     })
-    .orderBy(sort_by || 'created_at', order_by || "desc")
+    .orderBy(sort_by || "created_at", order_by || "desc")
     .returning("*")
     .then(joinedArtComms => {
       return joinedArtComms;
@@ -68,7 +78,7 @@ exports.grabArticle = article_id => {
           status: 404
         });
       }
-      return article;
+      return article[0];
     });
 };
 exports.adjustArticleVote = (article_id, adjustNumber) => {
@@ -91,6 +101,7 @@ exports.adjustArticleVote = (article_id, adjustNumber) => {
           status: 422
         });
       }
+      article = article[0]
       return { article, msg: "Votes recounted" };
     });
 };
@@ -102,7 +113,6 @@ exports.postNewArticleComment = (article_id, user, comment) => {
     .insert({ title: "thoughts", author: user, body: comment })
     .returning("*")
     .then(commentedArticle => {
-      // console.log(commentedArticle)
       return commentedArticle;
     });
 };

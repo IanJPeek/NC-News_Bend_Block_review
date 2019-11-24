@@ -27,7 +27,7 @@ describe("/api", () => {
       });
     });
 
-    it.only("ERROR HANDLES invalid methods - eg an attempt to DELETE on api/", () => {
+    it("ERROR HANDLES invalid methods - eg an attempt to DELETE on api/", () => {
       return request(app)
         .delete("/api")
         .expect(405)
@@ -77,7 +77,7 @@ describe("/api", () => {
           .get("/api/users/lurker")
           .expect(200)
           .then(({ body }) => {
-            expect(body.user[0].username).to.eql("lurker");
+            expect(body.user.username).to.eql("lurker");
           });
       });
     });
@@ -158,12 +158,30 @@ describe("/api", () => {
           expect(body.articles).to.be.descendingBy("votes");
         });
     });
-    it("GET:200 - QUERY, responds with an array of articles, sorted according to a valid column, in ascending order when requested", () => {
+    it("GET:200 - QUERY, responds with an array of articles, sorted according to a valid column, in ascending order when requested (by eg article_id)", () => {
+      return request(app)
+        .get("/api/articles?sort_by=article_id&order_by=asc")
+        .expect(200)
+        .then(({ body }) => {
+          console.log(body, "tests");
+          expect(body.articles).to.be.ascendingBy("article_id");
+        });
+    });
+    it("GET:200 - QUERY, responds with an array of articles, sorted according to a valid column, in ascending order when requested (by eg article_id)", () => {
+      return request(app)
+        .get("/api/articles?sort_by=article_id&order_by=desc")
+        .expect(200)
+        .then(({ body }) => {
+          console.log(body, "tests");
+          expect(body.articles).to.be.descendingBy("article_id");
+        });
+    });
+
+    it("GET:200 - QUERY, responds with an array of articles, sorted according to a valid column, in ascending order when requested (eg by votes)", () => {
       return request(app)
         .get("/api/articles?sort_by=votes&order_by=asc")
         .expect(200)
         .then(({ body }) => {
-          // console.log(body, "tests");
           expect(body.articles).to.be.ascendingBy("votes");
         });
     });
@@ -186,6 +204,14 @@ describe("/api", () => {
           expect(body.articles[5].topic).to.equal("mitch");
         });
     });
+xit("ERROR HANDLES - rejects a non-existent topic with a 404 ERROR", () => {
+  return request(app)
+    .get("/api/articles?topic=not_this_topic")
+    .expect(404)
+    .then(({ body }) => {console.log(body)
+      expect(body.msg).to.equal("Not Found - That aint a thing")
+    });
+});
 
     it('ERROR HANDLES invalid methods - eg an attempt to PATCH on api/articles', () => {
     return request(app)
@@ -203,7 +229,7 @@ describe("/api", () => {
           .get("/api/articles/4")
           .expect(200)
           .then(({ body }) => {
-            expect(body.article[0].topic).to.eql("mitch");
+            expect(body.article.topic).to.eql("mitch");
           });
       });
       it("ERROR HANDLES - returns a PSQL error code & handles this when given a string but expecting an article ID number", () => {
@@ -265,7 +291,7 @@ describe("/api", () => {
           .expect(202)
           .then(({ body }) => {
             expect(body.msg).to.equal("Votes recounted");
-            expect(body.article[0]).to.eql({
+            expect(body.article).to.eql({
               article_id: 7,
               title: "Z",
               body: "I was hungry.",
