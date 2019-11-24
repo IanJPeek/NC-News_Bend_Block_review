@@ -113,15 +113,17 @@ exports.postNewArticleComment = (article_id, user, comment) => {
     .insert({ title: "thoughts", author: user, body: comment })
     .returning("*")
     .then(commentedArticle => {
+      commentedArticle = commentedArticle[0]
       return commentedArticle;
     });
 };
-exports.selectArticleComments = ({ sort_by }) => {
-  // destructure as above
+exports.selectArticleComments = (article_id, query) => {
+  const { sort_by, order_by, author, topic } = query;
   return connection
     .select("*")
     .from("comments")
-    .orderBy(sort_by || "created_at", "desc")
+    .where("article_id", article_id)
+    .orderBy(sort_by || "created_at", order_by ||"desc")
     .returning("*")
     .then(artComment => {
       return artComment;

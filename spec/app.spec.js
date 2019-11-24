@@ -246,10 +246,10 @@ xit("ERROR HANDLES - rejects a non-existent topic with a 404 ERROR", () => {
 
       it("GET:200, for a specific article responds with that article (including a comment count key/ value pair)", () => {
         return request(app)
-          .get("/api/articles/5")
+          .get("/api/articles/1")
           .expect(200)
           .then(({ body }) => {
-            expect(body.article[0]).to.contain.keys(
+            expect(body.article).to.contain.keys(
               "article_id",
               "title",
               "body",
@@ -289,7 +289,7 @@ xit("ERROR HANDLES - rejects a non-existent topic with a 404 ERROR", () => {
           .patch("/api/articles/7")
           .send({ inc_votes: 1 })
           .expect(202)
-          .then(({ body }) => {
+          .then(({ body }) => {console.log(body)
             expect(body.msg).to.equal("Votes recounted");
             expect(body.article).to.eql({
               article_id: 7,
@@ -310,7 +310,7 @@ xit("ERROR HANDLES - rejects a non-existent topic with a 404 ERROR", () => {
           .expect(202)
           .then(({ body }) => {
             expect(body.msg).to.equal("Votes recounted");
-            expect(body.article[0]).to.eql({
+            expect(body.article).to.eql({
               article_id: 7,
               title: "Z",
               body: "I was hungry.",
@@ -329,7 +329,7 @@ xit("ERROR HANDLES - rejects a non-existent topic with a 404 ERROR", () => {
           .expect(202)
           .then(({ body }) => {
             expect(body.msg).to.equal("Votes recounted");
-            expect(body.article[0]).to.eql({
+            expect(body.article).to.eql({
               article_id: 7,
               title: "Z",
               body: "I was hungry.",
@@ -414,7 +414,8 @@ xit("ERROR HANDLES - rejects a non-existent topic with a 404 ERROR", () => {
           })
           .expect(201)
           .then(({ body }) => {
-            expect(body.comment[0]).to.contain({
+            console.log(body)
+            expect(body.comment).to.contain({
               article_id: 13,
               title: "thoughts",
               body: "My thoughts exactly! -Exactly the entire opposite.",
@@ -444,36 +445,45 @@ xit("ERROR HANDLES - rejects a non-existent topic with a 404 ERROR", () => {
       });
 
       it("GET:200, responds to a GET request for all comments on a given article_id with an array of comments", () => {
+    
         return request(app)
-          .get("/api/articles/:article_id/comments")
+          .get("/api/articles/1/comments")
           .expect(200)
-          .then(({ body }) => {
-            expect(body.comment[0]).to.contain.keys(
+          .then(({ body }) => {console.log(body);
+            expect(body.comments[0]).to.contain.keys(
               "comment_id",
               "votes",
               "body",
               "author",
               "created_at"
             );
+            expect(
+              body.comments[0]).to.eql({
+                comment_id: 2,
+                author: "butter_bridge",
+                article_id: 1,
+                votes: 14,
+                created_at: "2016-11-22T12:36:03.389Z",
+                body:
+                  "The beautiful thing about treasure is that it exists. Got to find out what kind of sheets these are; not cotton, not rayon, silky."
+              })
           });
       });
 
-      // passes individually (.only), but fails when run as part of test-suite??
-      it("GET:200, responds to a GET request with an array of comments default sorted by most recently created", () => {
+      it("GET:200, responds to a GET request for all comments on a given article_id with an array of comments", () => {
         return request(app)
-          .get("/api/articles/5/comments")
+          .get("/api/articles/1/comments")
           .expect(200)
           .then(({ body }) => {
-            expect(body.comment[0]).to.eql({
-              comment_id: 1,
-              author: "butter_bridge",
-              article_id: 9,
-              votes: 16,
-              created_at: "2017-11-22T12:36:03.389Z",
-              body:
-                "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!"
-            });
-            expect(body.comment[1]).to.eql({
+            console.log(body);
+            expect(body.comments[0]).to.contain.keys(
+              "comment_id",
+              "votes",
+              "body",
+              "author",
+              "created_at"
+            );
+            expect(body.comments[0]).to.eql({
               comment_id: 2,
               author: "butter_bridge",
               article_id: 1,
@@ -482,6 +492,33 @@ xit("ERROR HANDLES - rejects a non-existent topic with a 404 ERROR", () => {
               body:
                 "The beautiful thing about treasure is that it exists. Got to find out what kind of sheets these are; not cotton, not rayon, silky."
             });
+          });
+      });
+
+      it("GET:200, responds with an empty array when a GET request is made to an article which exists, but has no comments attached to it", () => {
+        return request(app)
+          .get("/api/articles/2/comments")
+          .expect(200)
+          .then(({ body }) =>{
+            expect(body.comments).to.eql([])
+          });
+      });
+
+      it("GET:200 - QUERY - will SORT_BY any valid column, with default order descending(eg by votes)", () => {
+        return request(app)
+          .get("/api/articles/1/comments?sort_by=votes")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.comments).to.be.descendingBy("votes");
+          });
+      });
+
+      it("GET:200 - QUERY - will accept an ORDER of asc or desc, sorting by 'created at' as a default descending(eg by votes)", () => {
+        return request(app)
+          .get("/api/articles/1/comments?order_by=asc")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.comments).to.be.ascendingBy("created_at");
           });
       });
       // check if .length = expected no. of article comments...

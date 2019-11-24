@@ -92,8 +92,9 @@ postNewArticleComment(article_id, user, comment)
 }).catch(next)
 }
 const getArticleComments =(req,res, next) => {
-selectArticleComments(req.query).then(comment => {
-  res.status(200).send({comment})
+  const {article_id} = req.params;
+selectArticleComments(article_id, req.query).then(comments => {
+  res.status(200).send({comments})
 }).catch(next)
 }
 
