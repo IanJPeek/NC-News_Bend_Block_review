@@ -21,13 +21,15 @@ app.use((err, req, res, next) => {
     res
       .status(404)
       .send({ msg: "No such article found - MUCH lower number please!" });
-  } else next(err);
+  } 
+  if (err.code === "23502"){
+    res.status(400).send({msg:"Please include username AND body in POST request"})}
+  else next(err);
 });
 
 //custom error handler
 app.use((err, req, res, next) => {
   console.log("custom", err);
-  
   res.status(err.status).send({ msg: err.msg });
 });
 

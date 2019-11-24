@@ -48,8 +48,6 @@ const getSingleUser = (req, res, next) => {
 };
 
 const getArticles = (req, res, next) => {
-  // checkArticleExists(req.query).catch(next)
-  // console.log("art exists checked")
   selectArticles(req.query)
     .then(articles => {
       res.status(200).send({ articles });
@@ -82,20 +80,40 @@ const increaseArticleVotes = (req,res,next) => {
     res.status(202).send(update) 
   }).catch(next)}
 }
+
 const addArticleComment = (req,res,next) => {
+
+const objectKeys = Object.keys(req.body);
+
+if (objectKeys.includes("username") === false) {
+  res
+    .status(400)
+    .send({ msg: "Please include username AND body in POST request" });
+  }
+  else{
+
 const { article_id } = req.params;
+
+// if (typeof article_id !== "number")
+
 const user = req.body.username;
 const comment = req.body.body
 postNewArticleComment(article_id, user, comment)
 .then(comment => {
   res.status(201).send({comment})
-}).catch(next)
+}).catch(next)}
 }
+
 const getArticleComments =(req,res, next) => {
   const {article_id} = req.params;
-selectArticleComments(article_id, req.query).then(comments => {
-  res.status(200).send({comments})
-}).catch(next)
+
+  if (typeof article_id !== "number")
+  
+    selectArticleComments(article_id, req.query)
+      .then(comments => {
+        res.status(200).send({ comments });
+      })
+      .catch(next);
 }
 
 const getComments = (req, res, next) => { 
@@ -113,7 +131,7 @@ const increaseCommentVotes = (req, res, next) => {
   const { comment_id } = req.params;
   const adjustment = req.body.inc_votes;
   adjustCommentVote(comment_id, adjustment).then(update => { 
-    res.status(202).send(update) 
+    res.status(200).send(update) 
   }).catch(next)
 }
 const deleteCommentByID = (req,res, next) => {

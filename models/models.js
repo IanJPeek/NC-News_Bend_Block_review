@@ -106,6 +106,15 @@ exports.adjustArticleVote = (article_id, adjustNumber) => {
     });
 };
 exports.postNewArticleComment = (article_id, user, comment) => {
+
+  // if (typeof article_id !== "number") {
+  //   console.log("rejecting")
+  //       return Promise.reject({
+  //         msg: "Numbers only for article ids, please.",
+  //         status: 400
+  //       });
+  //     }
+
   return connection
     .select("*")
     .from("articles")
@@ -137,17 +146,21 @@ exports.grabComment = comment_id => {
   return connection
     .select("*")
     .from("comments")
-    .where("comment_id", comment_id);
+    .where("comment_id", comment_id)
+    .returning("*")
+    .then(comment => {comment = comment[0]; return comment})
 };
 exports.adjustCommentVote = (comment_id, adjustNumber) => {
-  // console.log(adjustNumber, "adjustNumber");
+  if (adjustNumber === undefined) {
+    adjustNumber = 0;
+  }
   return connection
     .select("*")
     .from("comments")
     .where("comment_id", comment_id)
     .increment("votes", adjustNumber)
     .returning("*")
-    .then(comment => {
+    .then(comment => {comment = comment[0]
       return { comment, msg: "Votes recounted" };
     });
 };

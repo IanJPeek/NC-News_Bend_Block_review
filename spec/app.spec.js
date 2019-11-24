@@ -426,6 +426,63 @@ xit("ERROR HANDLES - rejects a non-existent topic with a 404 ERROR", () => {
           });
       });
 
+      it("ERROR HANDLES (with PSQL) - 400 - Responds to a POST request missing the required keys with a 400 status", () => {
+        return request(app)
+          .post("/api/articles/4/comments")
+          .send({
+            username: "butter_bridge",
+          })
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).to.equal("Please include username AND body in POST request")
+          });
+      });
+
+      it("ERROR HANDLES - 400 - Responds to a POST request missing the required keys with a 400 status", () => {
+        return request(app)
+          .post("/api/articles/4/comments")
+          .send({
+            body: "My thoughts exactly! -Exactly the entire opposite."
+          })
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).to.equal(
+              "Please include username AND body in POST request"
+            );
+          });
+      });
+
+      xit("ERROR HANDLES - 422 - Responds with a 422:Unprocessable entity code when a POST request is made to a valid 'article_id' which does not exist", () => {
+        return request(app)
+          .post("/api/articles/413/comments")
+          .send({
+            username: "butter_bridge",
+            body: "My thoughts exactly! -Exactly the entire opposite."
+          })
+          .expect(422)
+          .then(({ body }) => {;
+            expect(body.msg).to.equal(
+              "Unprocessable entity - article does not exist"
+            );
+          });
+      });
+
+     xit("ERROR HANDLES - Responds with a 400: Bad Request when a POST request is made with an invalid 'article_id'",
+        () => {
+          return request(app)
+            .post("/api/articles/not_an_article_number/comments")
+            .send({
+              username: "butter_bridge",
+              body: "My thoughts exactly! -Exactly the entire opposite."
+            })
+            .expect(400)
+            .then(({ body }) => {
+              expect(body.msg).to.equal(
+                "Numbers only for article ids, please."
+              );
+            });
+        });
+
       it("ERROR HANDLES invalid methods - eg an attempt to PUT on api/articles/2/comments", () => {
         return request(app)
           .put("/api/articles/1/comments")
@@ -521,14 +578,18 @@ xit("ERROR HANDLES - rejects a non-existent topic with a 404 ERROR", () => {
             expect(body.comments).to.be.ascendingBy("created_at");
           });
       });
-      // check if .length = expected no. of article comments...
 
-      //QUERY error-handling
-      // Bad queries:
-      // sort_by a column that doesn't exist
-      // order !== "asc" / "desc"
-      // author / topic that is not in the database
-      // author / topic that exists but does not have any articles associated with it
+      it("ERROR HANDLES - Responds with a 400: Bad Request when a GET request is made with an invalid id", () => {
+        return request(app)
+          .get("/api/articles/not_a_valid_id/comments")
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).to.equal(
+              "invalid (bad) request - ids: numbers only; votes: I need your number, no strings ;)"
+            );
+          });
+      });
+      // check if .length = expected no. of article comments...
     });
   });
 
@@ -538,20 +599,20 @@ xit("ERROR HANDLES - rejects a non-existent topic with a 404 ERROR", () => {
       return request(app)
         .get("/api/comments/11")
         .expect(200)
-        .then(({ body }) => {
-          expect(body.comment[0].body).to.eql("Ambidextrous marsupial");
+        .then(({ body }) => {console.log(body)
+          expect(body.comment.body).to.eql("Ambidextrous marsupial");
         });
     });
   });
 
-  it("PATCH:202 - api/comments/:comment_id responds to a patch request to increase the number of votes", () => {
+  it("PATCH:200 - api/comments/:comment_id responds to a patch request to increase the number of votes", () => {
     return request(app)
       .patch("/api/comments/3")
       .send({ inc_votes: 1 })
-      .expect(202)
+      .expect(200)
       .then(({ body }) => {
         expect(body.msg).to.equal("Votes recounted");
-        expect(body.comment[0]).to.eql({
+        expect(body.comment).to.eql({
           comment_id: 3,
           author: "icellusedkars",
           article_id: 1,
@@ -567,16 +628,33 @@ xit("ERROR HANDLES - rejects a non-existent topic with a 404 ERROR", () => {
     return request(app)
       .patch("/api/comments/3")
       .send({ inc_votes: -40 })
-      .expect(202)
+      .expect(200)
       .then(({ body }) => {
-        // console.log(body.comment);
-        //why now null author/ article_id..?
         expect(body.msg).to.equal("Votes recounted");
-        expect(body.comment[0]).to.eql({
+        expect(body.comment).to.eql({
           comment_id: 3,
           author: "icellusedkars",
           article_id: 1,
           votes: 60,
+          created_at: "2015-11-23T12:36:03.389Z",
+          body:
+            "Replacing the quiet elegance of the dark suit and tie with the casual indifference of these muted earth tones is a form of fashion suicide, but, uh, call me crazy — onyou it works."
+        });
+      });
+  });
+
+  it.only("PATCH:200 - api/comments/:comment_id responds to a patch request with no 'inc_votes' body with a 200 status and unchanged comment", () => {
+    return request(app)
+      .patch("/api/comments/3")
+      .send({ })
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.msg).to.equal("Votes recounted");
+        expect(body.comment).to.eql({
+          comment_id: 3,
+          author: "icellusedkars",
+          article_id: 1,
+          votes: 100,
           created_at: "2015-11-23T12:36:03.389Z",
           body:
             "Replacing the quiet elegance of the dark suit and tie with the casual indifference of these muted earth tones is a form of fashion suicide, but, uh, call me crazy — onyou it works."
