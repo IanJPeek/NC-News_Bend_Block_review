@@ -13,7 +13,7 @@ app.use("/api", apiRouter);
 
 // PSQL error handler - eg string instead of number/ number instead of string
 app.use((err, req, res, next) => {
-  console.log("PSQL", err);
+  // console.log("PSQL", err);
   if (err.code === "22P02"){
     res.status(400).send({msg:"invalid (bad) request - ids: numbers only; votes: I need your number, no strings ;)"})
   }
@@ -29,7 +29,7 @@ app.use((err, req, res, next) => {
 
 //custom error handler
 app.use((err, req, res, next) => {
-  console.log("custom", err);
+  // console.log("custom", err);
   res.status(err.status).send({ msg: err.msg });
 });
 

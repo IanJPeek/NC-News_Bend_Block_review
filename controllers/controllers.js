@@ -62,14 +62,16 @@ const getSingleArticle = (req, res, next) => {
 };
 const increaseArticleVotes = (req,res,next) => {
   const { article_id } = req.params;
+  console.log(+req.params.article_id)
+
   
   const objectKeys = Object.keys(req.body);
 
-  if (objectKeys.includes("inc_votes") === false) {
+  if (objectKeys.includes("inc_votes") === false && (req.params.article_id >= 0 || req.parmams.article_id < 0))  {
   res.status(418)
   .send({msg: "I'm a teapot - wrong method for getting what you're after" });
   }
-
+else{
   if (objectKeys.length > 1) {
   res
     .status(422)
@@ -77,9 +79,9 @@ const increaseArticleVotes = (req,res,next) => {
 }
   else{const adjustment = req.body.inc_votes;
   adjustArticleVote(article_id, adjustment).then(update => { 
-    res.status(202).send(update) 
+    res.status(200).send(update) 
   }).catch(next)}
-}
+}}
 
 const addArticleComment = (req,res,next) => {
 

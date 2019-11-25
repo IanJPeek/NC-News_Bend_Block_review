@@ -163,7 +163,6 @@ describe("/api", () => {
         .get("/api/articles?sort_by=article_id&order_by=asc")
         .expect(200)
         .then(({ body }) => {
-          console.log(body, "tests");
           expect(body.articles).to.be.ascendingBy("article_id");
         });
     });
@@ -172,7 +171,6 @@ describe("/api", () => {
         .get("/api/articles?sort_by=article_id&order_by=desc")
         .expect(200)
         .then(({ body }) => {
-          console.log(body, "tests");
           expect(body.articles).to.be.descendingBy("article_id");
         });
     });
@@ -208,7 +206,7 @@ xit("ERROR HANDLES - rejects a non-existent topic with a 404 ERROR", () => {
   return request(app)
     .get("/api/articles?topic=not_this_topic")
     .expect(404)
-    .then(({ body }) => {console.log(body)
+    .then(({ body }) => {
       expect(body.msg).to.equal("Not Found - That aint a thing")
     });
 });
@@ -288,8 +286,8 @@ xit("ERROR HANDLES - rejects a non-existent topic with a 404 ERROR", () => {
         return request(app)
           .patch("/api/articles/7")
           .send({ inc_votes: 1 })
-          .expect(202)
-          .then(({ body }) => {console.log(body)
+          .expect(200)
+          .then(({ body }) => {
             expect(body.msg).to.equal("Votes recounted");
             expect(body.article).to.eql({
               article_id: 7,
@@ -307,7 +305,7 @@ xit("ERROR HANDLES - rejects a non-existent topic with a 404 ERROR", () => {
         return request(app)
           .patch("/api/articles/7")
           .send({ inc_votes: 100 })
-          .expect(202)
+          .expect(200)
           .then(({ body }) => {
             expect(body.msg).to.equal("Votes recounted");
             expect(body.article).to.eql({
@@ -326,7 +324,7 @@ xit("ERROR HANDLES - rejects a non-existent topic with a 404 ERROR", () => {
         return request(app)
           .patch("/api/articles/7")
           .send({ inc_votes: -50 })
-          .expect(202)
+          .expect(200)
           .then(({ body }) => {
             expect(body.msg).to.equal("Votes recounted");
             expect(body.article).to.eql({
@@ -387,6 +385,26 @@ xit("ERROR HANDLES - rejects a non-existent topic with a 404 ERROR", () => {
           });
       });
 
+      it("ERROR HANDLES - PATCH:200 - api/articles/:article_id responds to a patch request to increase the number of votes", () => {
+    return request(app)
+      .patch("/api/articles/7")
+      .send({ })
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.msg).to.equal("Votes recounted");
+        expect(body.article).to.eql({
+          article_id: 7,
+          title: "Z",
+          body: "I was hungry.",
+          votes: 0,
+          topic: "mitch",
+          author: "icellusedkars",
+          created_at: "1994-11-21T12:21:54.171Z"
+        });
+      });
+  });
+
+
       it("ERROR HANDLES invalid methods - eg an attempt to PUT on api/articles", () => {
          return request(app)
            .put("/api/articles")
@@ -414,7 +432,6 @@ xit("ERROR HANDLES - rejects a non-existent topic with a 404 ERROR", () => {
           })
           .expect(201)
           .then(({ body }) => {
-            console.log(body)
             expect(body.comment).to.contain({
               article_id: 13,
               title: "thoughts",
@@ -506,7 +523,7 @@ xit("ERROR HANDLES - rejects a non-existent topic with a 404 ERROR", () => {
         return request(app)
           .get("/api/articles/1/comments")
           .expect(200)
-          .then(({ body }) => {console.log(body);
+          .then(({ body }) => {
             expect(body.comments[0]).to.contain.keys(
               "comment_id",
               "votes",
@@ -532,7 +549,6 @@ xit("ERROR HANDLES - rejects a non-existent topic with a 404 ERROR", () => {
           .get("/api/articles/1/comments")
           .expect(200)
           .then(({ body }) => {
-            console.log(body);
             expect(body.comments[0]).to.contain.keys(
               "comment_id",
               "votes",
@@ -599,7 +615,7 @@ xit("ERROR HANDLES - rejects a non-existent topic with a 404 ERROR", () => {
       return request(app)
         .get("/api/comments/11")
         .expect(200)
-        .then(({ body }) => {console.log(body)
+        .then(({ body }) => {
           expect(body.comment.body).to.eql("Ambidextrous marsupial");
         });
     });
@@ -643,7 +659,7 @@ xit("ERROR HANDLES - rejects a non-existent topic with a 404 ERROR", () => {
       });
   });
 
-  it.only("PATCH:200 - api/comments/:comment_id responds to a patch request with no 'inc_votes' body with a 200 status and unchanged comment", () => {
+  it("PATCH:200 - api/comments/:comment_id responds to a patch request with no 'inc_votes' body with a 200 status and unchanged comment", () => {
     return request(app)
       .patch("/api/comments/3")
       .send({ })
