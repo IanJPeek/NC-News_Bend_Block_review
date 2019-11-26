@@ -1,14 +1,16 @@
 const userRouter = require("express").Router();
 
-const { getUsers, getSingleUser } = require("../controllers/controllers");
+const { getUsers, getSingleUser,send405 } = require("../controllers/controllers");
 
-userRouter.route("/").get(getUsers);
-userRouter.route("/:username").get(getSingleUser);
-
+userRouter
+  .route("/")
+  .get(getUsers)
+  .all(send405);
+userRouter
+  .route("/:username")
+  .get(getSingleUser)
+  .all(send405);
 
 console.log("users found");
-
-userRouter.all("/*", (req, res, next) =>
-  res.status(405).send({msg: "method not allowed"}));
 
 module.exports = userRouter;

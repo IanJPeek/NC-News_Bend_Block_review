@@ -1,0 +1,30 @@
+const express = require("express");
+const app = express();
+
+// require
+
+exports.handlePSQLErrors = (err, req, res, next) => {
+  console.log("PSQL", err);
+  if (err.code === "22P02"){
+    res.status(400).send({msg:"invalid (bad) request - ids: numbers only; votes: I need your number, no strings ;)"})
+  }
+  if (err.code === "22003") {
+    res
+      .status(404)
+      .send({ msg: "No such article found - MUCH lower number please!" });
+  } 
+  if (err.code === "23502"){
+    res.status(400).send({msg:"Please include username AND body in POST request"})}
+  else next(err);
+};
+
+exports.handleCustomErrors = (err, req, res, next) => {
+  console.log("custom", err);
+  res.status(err.status).send({ msg: err.msg });
+}
+
+exports.handleLeftoverErrors = (err, req, res, next) =>
+  res.status(404).send("route not found");
+
+
+// module.exports = {handlePSQLErrors, handleCustomErrors, handleLeftoverErrors};

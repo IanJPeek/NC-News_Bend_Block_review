@@ -1,12 +1,5 @@
 const connection = require("../db/connection");
 
-exports.errRoute = () => {
-  return {
-    msg: "Bad Request - Invalid user ID",
-    status: 404
-  };
-};
-
 exports.selectTopics = () => {
   return connection.select("*").from("topics");
 };
@@ -43,6 +36,16 @@ exports.selectArticles = (query) => {
   // console.log(sort_by);
 // if (topic !== "mitch" || "cats" || "paper")
 // {checkArticleExists(topic)}
+console.log("getting article?")
+console.log(query)
+
+// MAKES CODE HANG/ BREAK?
+// const columns = ["votes", "topic", "author", "created_at", "comment_count", "title", "body", "article_id"]
+// if (colummns.includes(sort_by) === false){console.log("rejecting")
+//   return Promise.reject({status: 404, msg: "not a valid category to sort_by..."})
+// }
+
+// pseudo if "includes" for sort_by does not match Columns array... REJECT
   return connection
     .select("articles.*")
     .from("articles")

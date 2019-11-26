@@ -174,7 +174,6 @@ describe("/api", () => {
           expect(body.articles).to.be.descendingBy("article_id");
         });
     });
-
     it("GET:200 - QUERY, responds with an array of articles, sorted according to a valid column, in ascending order when requested (eg by votes)", () => {
       return request(app)
         .get("/api/articles?sort_by=votes&order_by=asc")
@@ -192,7 +191,6 @@ describe("/api", () => {
           expect(body.articles[4].author).to.equal("icellusedkars");
         });
     });
-
     it("GET:200 - QUERY, responds with an array of articles, filtered by the topic value requested", () => {
       return request(app)
         .get("/api/articles?topic=mitch")
@@ -202,6 +200,14 @@ describe("/api", () => {
           expect(body.articles[5].topic).to.equal("mitch");
         });
     });
+xit("ERROR HANDLES - 404 - rejects a 'sort_by' for a column category that does not exist", () => {
+  return request(app)
+    .get("/api/articles?sort_by=junk")
+    .expect(404)
+    .then(({ body }) => {console.log(body)
+      expect(body.msg).to.equal("not a valid category to sort_by...");
+    });
+});
 xit("ERROR HANDLES - rejects a non-existent topic with a 404 ERROR", () => {
   return request(app)
     .get("/api/articles?topic=not_this_topic")
@@ -431,7 +437,7 @@ xit("ERROR HANDLES - rejects a non-existent topic with a 404 ERROR", () => {
             body: "My thoughts exactly! -Exactly the entire opposite."
           })
           .expect(201)
-          .then(({ body }) => {
+          .then(({ body }) => {console.log(body)
             expect(body.comment).to.contain({
               article_id: 13,
               title: "thoughts",

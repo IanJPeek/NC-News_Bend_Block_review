@@ -5,21 +5,22 @@ const {
   getSingleArticle,
   increaseArticleVotes,
   addArticleComment,
-  getArticleComments
+  getArticleComments,
+  send405
 } = require("../controllers/controllers");
 
-articleRouter.route("/").get(getArticles);
-articleRouter.route("/:article_id")
-.get(getSingleArticle)
-.patch(increaseArticleVotes)
-articleRouter.route("/:article_id/comments")
-.get(getArticleComments)
-.post(addArticleComment);
+articleRouter.route("/").get(getArticles).all(send405);
+articleRouter
+  .route("/:article_id")
+  .get(getSingleArticle)
+  .patch(increaseArticleVotes)
+  .all(send405);
+articleRouter
+  .route("/:article_id/comments")
+  .get(getArticleComments)
+  .post(addArticleComment)
+  .all(send405);
 
 console.log("articles found")
-
-articleRouter.all("/*", (req, res, next) =>
-  res.status(405).send({ msg: "method not allowed" })
-);
 
 module.exports = articleRouter;

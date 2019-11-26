@@ -4,21 +4,21 @@ const {
   getComments,
   getSingleComment,
   increaseCommentVotes,
-  deleteCommentByID
+  deleteCommentByID,
+  send405
 } = require("../controllers/controllers");
 
-commentRouter.route("/").get(getComments);
+commentRouter
+  .route("/")
+  .get(getComments)
+  .all(send405)
 commentRouter
   .route("/:comment_id")
   .get(getSingleComment)
   .patch(increaseCommentVotes)
-  .delete(deleteCommentByID);
-
+  .delete(deleteCommentByID)
+  .all(send405);
 
 console.log("comments found");
-
-commentRouter.all("/*", (req, res, next) =>
-  res.status(405).send({ msg: "method not allowed" })
-);
 
 module.exports = commentRouter;

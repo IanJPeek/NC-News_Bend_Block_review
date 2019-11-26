@@ -12,18 +12,11 @@ const {
   adjustArticleVote,
   postNewArticleComment,
   adjustCommentVote,
-  removeComment
+  removeComment,
 } = require("../models/models");
 
-const badRoute = (req,res,next) =>{
-  console.log("bad models")
-  errRoute(req)
-    .then(errReturn => {
-      console.log(errReturn);
-      res.status(404).send({ msg: "404 Not Found - That aint a thing" });
-    })
-    .catch(next);
-}
+const send405 = (req, res, next) => {
+  res.status(405).send({ msg: "method not allowed" })}
 
 const getTopics = (req, res, next) => {
   selectTopics(req.query)
@@ -143,7 +136,7 @@ removeComment(comment_id).then( () => {console.log("deleting");res.status(204).s
 }
 
 module.exports = {
-  badRoute,
+  send405,
   getTopics,
   getUsers,
   getArticles,
