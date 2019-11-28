@@ -15,7 +15,10 @@ exports.handlePSQLErrors = (err, req, res, next) => {
   } 
   if (err.code === "23502"){
     res.status(400).send({msg:"Please include username AND body in POST request"})}
-  else next(err);
+    if (err.code === "42703"){
+      res.status(404).send({ msg: "not a valid category to sort_by..." });
+    }
+    else next(err);
 };
 
 exports.handleCustomErrors = (err, req, res, next) => {

@@ -158,6 +158,24 @@ describe("/api", () => {
           expect(body.articles).to.be.descendingBy("votes");
         });
     });
+    it("GET:200 - QUERY, responds with an array of articles, sorted in ascending order when requested)", () => {
+      return request(app)
+        .get("/api/articles?order=asc")
+        .expect(200)
+        .then(({ body }) => {
+       expect(body.articles[0]).to.eql({
+         article_id: 12,
+         title: "Moustache",
+         body: "Have you seen the size of that thing?",
+         votes: 0,
+         topic: "mitch",
+         author: "butter_bridge",
+         created_at: "1974-11-26T12:21:54.171Z",
+         comment_count: "0"
+       });
+        });
+    });
+
     it("GET:200 - QUERY, responds with an array of articles, sorted according to a valid column, in ascending order when requested (by eg article_id)", () => {
       return request(app)
         .get("/api/articles?sort_by=article_id&order_by=asc")
@@ -200,15 +218,15 @@ describe("/api", () => {
           expect(body.articles[5].topic).to.equal("mitch");
         });
     });
-xit("ERROR HANDLES - 404 - rejects a 'sort_by' for a column category that does not exist", () => {
+it("ERROR HANDLES (with PSQL)- 404 - rejects a 'sort_by' for a column category that does not exist", () => {
   return request(app)
     .get("/api/articles?sort_by=junk")
     .expect(404)
-    .then(({ body }) => {console.log(body)
+    .then(({ body }) => {
       expect(body.msg).to.equal("not a valid category to sort_by...");
     });
 });
-xit("ERROR HANDLES - rejects a non-existent topic with a 404 ERROR", () => {
+it("ERROR HANDLES - rejects a non-existent topic with a 404 ERROR", () => {
   return request(app)
     .get("/api/articles?topic=not_this_topic")
     .expect(404)
@@ -523,13 +541,13 @@ xit("ERROR HANDLES - rejects a non-existent topic with a 404 ERROR", () => {
             expect(body.msg).to.equal("method not allowed");
           });
       });
-
+//SEE THIS FOR POSTING COMMENT ERROR 
+// Are next 2 tests the same...?
       it("GET:200, responds to a GET request for all comments on a given article_id with an array of comments", () => {
-    
         return request(app)
           .get("/api/articles/1/comments")
           .expect(200)
-          .then(({ body }) => {
+          .then(({ body }) => {console.log("SEE THIS FOR POSTING COMMENT ERROR ")
             expect(body.comments[0]).to.contain.keys(
               "comment_id",
               "votes",
@@ -583,12 +601,49 @@ xit("ERROR HANDLES - rejects a non-existent topic with a 404 ERROR", () => {
           });
       });
 
+      it("ERROR HANDLES - responds with a 404 when a request is made using a valid article_id no. where the article does not exist", () => {
+        return request(app)
+          .get("/api/articles/567/comments")
+          .expect(404)
+          .then(({ body }) => {console.log(body)
+          expect(body.msg).to.eql("No such article, aim lower");
+          });
+      });
+
       it("GET:200 - QUERY - will SORT_BY any valid column, with default order descending(eg by votes)", () => {
         return request(app)
           .get("/api/articles/1/comments?sort_by=votes")
           .expect(200)
           .then(({ body }) => {
             expect(body.comments).to.be.descendingBy("votes");
+          });
+      });
+
+       it("GET:200 - QUERY, responds with an array of articles, sorted in ascending order when requested)", () => {
+         return request(app)
+           .get("/api/articles/1/comments?order=desc")
+           .expect(200)
+           .then(({ body }) => {
+             console.log(body);
+            //  expect(body.articles[0]).to.eql({
+            //    article_id: 12,
+            //    title: "Moustache",
+            //    body: "Have you seen the size of that thing?",
+            //    votes: 0,
+            //    topic: "mitch",
+            //    author: "butter_bridge",
+            //    created_at: "1974-11-26T12:21:54.171Z",
+            //    comment_count: "0"
+            //  });
+           });
+       });
+
+      it("ERROR HANDLING (with PSQL)- QUERY - will reject a SORT_BY for an invalid column", () => {
+        return request(app)
+          .get("/api/articles/1/comments?sort_by=not_this")
+          .expect(404)
+          .then(({ body }) => {
+            expect(body.msg).to.equal("not a valid category to sort_by...");
           });
       });
 

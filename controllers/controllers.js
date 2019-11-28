@@ -7,7 +7,7 @@ const {
   grabUser,
   grabArticle,
   selectArticleComments,
-  checkArticleExists,
+  checkTopicExists,
   grabComment,
   adjustArticleVote,
   postNewArticleComment,
@@ -41,6 +41,20 @@ const getSingleUser = (req, res, next) => {
 };
 
 const getArticles = (req, res, next) => {
+
+
+// const objectKeys = Object.keys(req.body);
+// const objectKeyQ = Object.keys(req.query);
+// console.log(objectKeys, "body");
+// console.log(objectKeyQ, "query");
+
+if (Object.keys(req.query).includes("topic")) {
+  checkTopicExists(req.query)
+  // if valid, invoke selectArticles, if not .catch next?
+}
+// .catch(next)  --- AFTER checkTopicExists?
+// Not a function... One passes, another fails...
+
   selectArticles(req.query)
     .then(articles => {
       res.status(200).send({ articles });
@@ -49,6 +63,7 @@ const getArticles = (req, res, next) => {
 };
 const getSingleArticle = (req, res, next) => {
   const { article_id } = req.params;
+
   grabArticle(article_id).then(article => {
     res.status(200).send({article});
   }).catch(next)
@@ -102,7 +117,8 @@ postNewArticleComment(article_id, user, comment)
 const getArticleComments =(req,res, next) => {
   const {article_id} = req.params;
 
-  if (typeof article_id !== "number")
+  console.log(article_id);
+  // if (typeof article_id !== "number")
   
     selectArticleComments(article_id, req.query)
       .then(comments => {

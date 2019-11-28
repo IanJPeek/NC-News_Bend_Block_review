@@ -24,44 +24,56 @@ exports.grabUser = username => {
     });
 };
 
-exports.checkArticleExists = query => {
-  const {topic} = query
-  if (topic !== "mitch" || "cats" || "paper") {
-    return Promise.reject({status: 404, msg: "Not Found - That aint a thing"})
-  }
- return (query)}
 
 exports.selectArticles = (query) => {
-  const { sort_by, order_by, author, topic } = query
+  const { sort_by, order_by, author, topic, order } = query
   // console.log(sort_by);
-// if (topic !== "mitch" || "cats" || "paper")
-// {checkArticleExists(topic)}
-console.log("getting article?")
-console.log(query)
-
-// MAKES CODE HANG/ BREAK?
-// const columns = ["votes", "topic", "author", "created_at", "comment_count", "title", "body", "article_id"]
-// if (colummns.includes(sort_by) === false){console.log("rejecting")
-//   return Promise.reject({status: 404, msg: "not a valid category to sort_by..."})
-// }
-
-// pseudo if "includes" for sort_by does not match Columns array... REJECT
+  // if (topic !== "mitch" || "cats" || "paper")
+  // {checkArticleExists(topic)}
+  console.log("getting article?")
+  console.log(query)
+  
+  // MAKES CODE HANG/ BREAK?
+  // const columns = ["votes", "topic", "author", "created_at", "comment_count", "title", "body", "article_id"]
+  // if (colummns.includes(sort_by) === false){console.log("rejecting")
+  //   return Promise.reject({status: 404, msg: "not a valid category to sort_by..."})
+  // }
+  
+  // pseudo if "includes" for sort_by does not match Columns array... REJECT
   return connection
-    .select("articles.*")
-    .from("articles")
-    .leftJoin("comments", "articles.article_id", "=", "comments.article_id")
-    .count("comment_id AS comment_count")
-    .groupBy("articles.article_id")
-    .modify(query => {
-      if (author) query.where("articles.author", author);
-      if (topic) query.where("articles.topic", topic);
-    })
-    .orderBy(sort_by || "created_at", order_by || "desc")
-    .returning("*")
-    .then(joinedArtComms => {
-      return joinedArtComms;
-    });
+  .select("articles.*")
+  .from("articles")
+  .leftJoin("comments", "articles.article_id", "=", "comments.article_id")
+  .count("comment_id AS comment_count")
+  .groupBy("articles.article_id")
+  .modify(query => {
+    if (author) query.where("articles.author", author);
+    if (topic) query.where("articles.topic", topic);
+  })
+  .orderBy(sort_by || "created_at", order_by || order, "desc")
+  .returning("*")
+  .then(joinedArtComms => {
+    return joinedArtComms;
+  });
 };
+
+exports.checkTopicExists = query => {
+  console.log("checking topic")
+  const { topic } = query;
+  if (topic === "mitch" || topic === "cats" || topic === "paper") {console.log("returning"); 
+  // selectArticles(query)
+}
+  else
+  {
+    console.log("rejecting");
+    return Promise.reject({
+      status: 404,
+      msg: "Not Found - That aint a thing"
+    })
+    // topic.next();
+  }
+ return (query)
+}
 
 exports.grabArticle = article_id => {
   return connection
@@ -131,14 +143,21 @@ exports.postNewArticleComment = (article_id, user, comment) => {
     });
 };
 exports.selectArticleComments = (article_id, query) => {
-  const { sort_by, order_by, author, topic } = query;
+  const { sort_by, order_by, author, topic, order } = query;
   return connection
     .select("*")
     .from("comments")
     .where("article_id", article_id)
-    .orderBy(sort_by || "created_at", order_by ||"desc")
+    .orderBy(sort_by || "created_at", order_by ||order, "desc")
     .returning("*")
     .then(artComment => {
+      //  ERROR - CHECK article/ article_id exists, or breaks empty array return...
+      // console.log(artComment);
+      // if (artComment.length === 0 && ) {return Promise.reject ({
+      //     msg: "No such article, aim lower",
+      //     status: 404
+      //   });
+      // }
       return artComment;
     });
 };
