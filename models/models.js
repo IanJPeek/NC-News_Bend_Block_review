@@ -50,7 +50,7 @@ exports.selectArticles = (query) => {
     if (author) query.where("articles.author", author);
     if (topic) query.where("articles.topic", topic);
   })
-  .orderBy(sort_by || "created_at", order_by || order, "desc")
+  .orderBy(sort_by || "created_at", order_by || order || "desc")
   .returning("*")
   .then(joinedArtComms => {
     return joinedArtComms;
@@ -148,7 +148,7 @@ exports.selectArticleComments = (article_id, query) => {
     .select("*")
     .from("comments")
     .where("article_id", article_id)
-    .orderBy(sort_by || "created_at", order_by ||order, "desc")
+    .orderBy(sort_by || "created_at", order_by || order ||"desc",)
     .returning("*")
     .then(artComment => {
       //  ERROR - CHECK article/ article_id exists, or breaks empty array return...

@@ -614,7 +614,7 @@ it("ERROR HANDLES - rejects a non-existent topic with a 404 ERROR", () => {
         return request(app)
           .get("/api/articles/1/comments?sort_by=votes")
           .expect(200)
-          .then(({ body }) => {
+          .then(({ body }) => {console.log(body.comments)
             expect(body.comments).to.be.descendingBy("votes");
           });
       });
