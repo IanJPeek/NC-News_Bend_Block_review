@@ -15,14 +15,12 @@ describe("/api", () => {
   after(() => connection.destroy());
   
     describe("/*", () => {
-      //seems not to take route?
-      // better/ simpler way to error handle this?
-      xit("Error handles an invalid route with a 404 response", () => {
+      it("Error handles an invalid route with a 404 response", () => {
         return request(app)
           .get("/api/anyOldThingYouDontGot")
           .expect(404)
           .then(({ body }) => {
-            expect(body.msg).to.equal("404 Not Found - That aint a thing");
+            expect(body.msg).to.equal("404 Not Found - Invalid Route");
           });
       });
     });
@@ -226,6 +224,8 @@ it("ERROR HANDLES (with PSQL)- 404 - rejects a 'sort_by' for a column category t
       expect(body.msg).to.equal("not a valid category to sort_by...");
     });
 });
+
+//FAILS TESTS
 it("ERROR HANDLES - rejects a non-existent topic with a 404 ERROR", () => {
   return request(app)
     .get("/api/articles?topic=not_this_topic")
@@ -409,7 +409,7 @@ it("ERROR HANDLES - rejects a non-existent topic with a 404 ERROR", () => {
           });
       });
 
-      it("ERROR HANDLES - PATCH:200 - api/articles/:article_id responds to a patch request to increase the number of votes", () => {
+      it("ERROR HANDLES - PATCH:200 - api/articles/:article_id responds to a patch request to increase the number of votes with an empty body by ignoring and sending the original article back", () => {
     return request(app)
       .patch("/api/articles/7")
       .send({ })
@@ -447,15 +447,16 @@ it("ERROR HANDLES - rejects a non-existent topic with a 404 ERROR", () => {
            });
        });
 
+       //REQUEST for ARTICLE eg 1 ALWAYS RETURNS article 13...?
       it("Responds to a POST comment request with a 201 status and the posted comment", () => {
         return request(app)
-          .post("/api/articles/4/comments")
+          .post("/api/articles/1/comments")
           .send({
             username: "butter_bridge",
             body: "My thoughts exactly! -Exactly the entire opposite."
           })
           .expect(201)
-          .then(({ body }) => {console.log(body)
+          .then(({ body }) => {
             expect(body.comment).to.contain({
               article_id: 13,
               title: "thoughts",
@@ -493,7 +494,7 @@ it("ERROR HANDLES - rejects a non-existent topic with a 404 ERROR", () => {
           });
       });
 
-      xit("ERROR HANDLES - 422 - Responds with a 422:Unprocessable entity code when a POST request is made to a valid 'article_id' which does not exist", () => {
+      it("ERROR HANDLES - 422 - Responds with a 422:Unprocessable entity code when a POST request is made to a valid 'article_id' which does not exist", () => {
         return request(app)
           .post("/api/articles/413/comments")
           .send({
@@ -601,6 +602,7 @@ it("ERROR HANDLES - rejects a non-existent topic with a 404 ERROR", () => {
           });
       });
 
+      // FAILS TEST
       it("ERROR HANDLES - responds with a 404 when a request is made using a valid article_id no. where the article does not exist", () => {
         return request(app)
           .get("/api/articles/567/comments")
@@ -614,29 +616,28 @@ it("ERROR HANDLES - rejects a non-existent topic with a 404 ERROR", () => {
         return request(app)
           .get("/api/articles/1/comments?sort_by=votes")
           .expect(200)
-          .then(({ body }) => {console.log(body.comments)
+          .then(({ body }) => {
             expect(body.comments).to.be.descendingBy("votes");
           });
       });
 
-       it("GET:200 - QUERY, responds with an array of articles, sorted in ascending order when requested)", () => {
-         return request(app)
-           .get("/api/articles/1/comments?order=desc")
-           .expect(200)
-           .then(({ body }) => {
-             console.log(body);
-            //  expect(body.articles[0]).to.eql({
-            //    article_id: 12,
-            //    title: "Moustache",
-            //    body: "Have you seen the size of that thing?",
-            //    votes: 0,
-            //    topic: "mitch",
-            //    author: "butter_bridge",
-            //    created_at: "1974-11-26T12:21:54.171Z",
-            //    comment_count: "0"
-            //  });
-           });
-       });
+      //  it.only("GET:200 - QUERY, responds with an array of articles, sorted in ascending order when requested)", () => {
+      //    return request(app)
+      //      .get("/api/articles/1/comments?order=asc")
+      //      .expect(200)
+      //      .then(({ body }) => {console.log(body)
+      //       //  expect(body.articles[0]).to.eql({
+      //       //    article_id: 12,
+      //       //    title: "Moustache",
+      //       //    body: "Have you seen the size of that thing?",
+      //       //    votes: 0,
+      //       //    topic: "mitch",
+      //       //    author: "butter_bridge",
+      //       //    created_at: "1974-11-26T12:21:54.171Z",
+      //       //    comment_count: "0"
+      //       //  });
+      //      });
+      //  });
 
       it("ERROR HANDLING (with PSQL)- QUERY - will reject a SORT_BY for an invalid column", () => {
         return request(app)
@@ -736,6 +737,25 @@ it("ERROR HANDLES - rejects a non-existent topic with a 404 ERROR", () => {
           body:
             "Replacing the quiet elegance of the dark suit and tie with the casual indifference of these muted earth tones is a form of fashion suicide, but, uh, call me crazy — onyou it works."
         });
+      });
+  });
+
+  it("ERROR HANDLES - PATCH:200 - api/comments/:comment_id responds to a patch request to increase the number of votes", () => {
+    return request(app)
+      .patch("/api/comments/1000")
+      .send({ inc_votes: 4 })
+      .expect(404)
+      .then(({ body }) => {console.log(body)
+        expect(body.msg).to.equal("No such comment exists");
+      //   expect(body.comment).to.eql({
+      //     comment_id: 3,
+      //     author: "icellusedkars",
+      //     article_id: 1,
+      //     votes: 101,
+      //     created_at: "2015-11-23T12:36:03.389Z",
+      //     body:
+      //       "Replacing the quiet elegance of the dark suit and tie with the casual indifference of these muted earth tones is a form of fashion suicide, but, uh, call me crazy — onyou it works."
+      //   });
       });
   });
 

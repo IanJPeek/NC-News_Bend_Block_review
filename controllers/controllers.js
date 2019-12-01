@@ -18,6 +18,10 @@ const {
 const send405 = (req, res, next) => {
   res.status(405).send({ msg: "method not allowed" })}
 
+const send404 = (req, res, next) => {
+  res.status(404).send({ msg: "404 Not Found - Invalid Route" });
+};
+
 const getTopics = (req, res, next) => {
   selectTopics(req.query)
     .then(topics => {
@@ -70,16 +74,14 @@ const getSingleArticle = (req, res, next) => {
 };
 const increaseArticleVotes = (req,res,next) => {
   const { article_id } = req.params;
-  console.log(+req.params.article_id)
-
-  
   const objectKeys = Object.keys(req.body);
 
-  if (objectKeys.includes("inc_votes") === false && (req.params.article_id >= 0 || req.parmams.article_id < 0))  {
+  // if 1 item & wrong key in PATCH
+  if (objectKeys.length === 1 && objectKeys[0] !== "inc_votes") {
   res.status(418)
-  .send({msg: "I'm a teapot - wrong method for getting what you're after" });
-  }
-else{
+  .send({msg: "I'm a teapot - wrong method for getting what you're after" })
+}
+
   if (objectKeys.length > 1) {
   res
     .status(422)
@@ -89,10 +91,10 @@ else{
   adjustArticleVote(article_id, adjustment).then(update => { 
     res.status(200).send(update) 
   }).catch(next)}
-}}
+}
+
 
 const addArticleComment = (req,res,next) => {
-
 const objectKeys = Object.keys(req.body);
 
 if (objectKeys.includes("username") === false) {
@@ -103,9 +105,6 @@ if (objectKeys.includes("username") === false) {
   else{
 
 const { article_id } = req.params;
-
-// if (typeof article_id !== "number")
-
 const user = req.body.username;
 const comment = req.body.body
 postNewArticleComment(article_id, user, comment)
@@ -116,9 +115,6 @@ postNewArticleComment(article_id, user, comment)
 
 const getArticleComments =(req,res, next) => {
   const {article_id} = req.params;
-
-  console.log(article_id);
-  // if (typeof article_id !== "number")
   
     selectArticleComments(article_id, req.query)
       .then(comments => {
@@ -132,12 +128,14 @@ const getComments = (req, res, next) => {
     res.status(200).send({ comments });
   }).catch(next)
 };
+
 const getSingleComment = (req, res, next) => {
   const { comment_id } = req.params;
   grabComment(comment_id).then(comment => {
     res.status(200).send({ comment });
   }).catch(next)
 }
+
 const increaseCommentVotes = (req, res, next) => {
   const { comment_id } = req.params;
   const adjustment = req.body.inc_votes;
@@ -147,11 +145,11 @@ const increaseCommentVotes = (req, res, next) => {
 }
 const deleteCommentByID = (req,res, next) => {
 const {comment_id} = req.params;
-console.log(comment_id)
-removeComment(comment_id).then( () => {console.log("deleting");res.status(204).send()}).catch(next)
+removeComment(comment_id).then( () => {res.status(204).send()}).catch(next)
 }
 
 module.exports = {
+  send404,
   send405,
   getTopics,
   getUsers,

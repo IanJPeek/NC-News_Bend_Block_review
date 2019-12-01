@@ -139,6 +139,11 @@ exports.postNewArticleComment = (article_id, user, comment) => {
     .returning("*")
     .then(commentedArticle => {
       commentedArticle = commentedArticle[0]
+      // // if (commentedArticle[article_id] !== article_id){return Promise.reject({
+      // //     msg: "Unprocessable entity - article does not exist",
+      // //     status: 422
+      // //   })
+      //   ;}
       return commentedArticle;
     });
 };
@@ -184,9 +189,13 @@ exports.adjustCommentVote = (comment_id, adjustNumber) => {
     .increment("votes", adjustNumber)
     .returning("*")
     .then(comment => {comment = comment[0]
+
+if (comment === undefined) {return Promise.reject({msg: "No such comment exists", status: 404})}
+
       return { comment, msg: "Votes recounted" };
     });
 };
+
 exports.removeComment = (comment_id) => {
   return connection('comments').where({comment_id})
   .del()
