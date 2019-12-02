@@ -653,7 +653,7 @@ xit("ERROR HANDLES - rejects a non-existent topic with a 404 ERROR", () => {
       it("ERROR HANDLING (with PSQL)- QUERY - will reject a SORT_BY for an invalid column", () => {
         return request(app)
           .get("/api/articles/1/comments?sort_by=not_this")
-          .expect(404)
+          .expect(400)
           .then(({ body }) => {
             expect(body.msg).to.equal("not a valid category to sort_by...");
           });
