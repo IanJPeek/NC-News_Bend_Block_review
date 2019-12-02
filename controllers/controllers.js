@@ -46,7 +46,6 @@ const getSingleUser = (req, res, next) => {
 
 const getArticles = (req, res, next) => {
 
-
 // const objectKeys = Object.keys(req.body);
 // const objectKeyQ = Object.keys(req.query);
 // console.log(objectKeys, "body");
@@ -65,6 +64,7 @@ if (Object.keys(req.query).includes("topic")) {
     })
     .catch(next);
 };
+
 const getSingleArticle = (req, res, next) => {
   const { article_id } = req.params;
 
@@ -72,6 +72,7 @@ const getSingleArticle = (req, res, next) => {
     res.status(200).send({article});
   }).catch(next)
 };
+
 const increaseArticleVotes = (req,res,next) => {
   const { article_id } = req.params;
   const objectKeys = Object.keys(req.body);

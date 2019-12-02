@@ -60,9 +60,11 @@ exports.selectArticles = (query) => {
 exports.checkTopicExists = query => {
   console.log("checking topic")
   const { topic } = query;
-  if (topic === "mitch" || topic === "cats" || topic === "paper") {console.log("returning"); 
+  if (topic === "mitch" || topic === "cats" || topic === "paper")
+  
+  {console.log("returning");}
+  
   // selectArticles(query)
-}
   else
   {
     console.log("rejecting");

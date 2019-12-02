@@ -225,13 +225,24 @@ it("ERROR HANDLES (with PSQL)- 404 - rejects a 'sort_by' for a column category t
     });
 });
 
-//FAILS TESTS
+//  FAILS TESTS...
+//  If passes, other fails - "GET:200 - QUERY, responds with an array of articles, filtered by the topic value requested" (& hangs...)
+
 it("ERROR HANDLES - rejects a non-existent topic with a 404 ERROR", () => {
   return request(app)
     .get("/api/articles?topic=not_this_topic")
     .expect(404)
     .then(({ body }) => {
       expect(body.msg).to.equal("Not Found - That aint a thing")
+    });
+});
+
+xit("ERROR HANDLES - rejects a non-existent topic with a 404 ERROR", () => {
+  return request(app)
+    .get("/api/articles?author=not_this_guy")
+    .expect(404)
+    .then(({ body }) => {
+      expect(body.msg).to.equal("Not Found - That aint a thing");
     });
 });
 
@@ -548,7 +559,7 @@ it("ERROR HANDLES - rejects a non-existent topic with a 404 ERROR", () => {
         return request(app)
           .get("/api/articles/1/comments")
           .expect(200)
-          .then(({ body }) => {console.log("SEE THIS FOR POSTING COMMENT ERROR ")
+          .then(({ body }) => {
             expect(body.comments[0]).to.contain.keys(
               "comment_id",
               "votes",
@@ -607,7 +618,7 @@ it("ERROR HANDLES - rejects a non-existent topic with a 404 ERROR", () => {
         return request(app)
           .get("/api/articles/567/comments")
           .expect(404)
-          .then(({ body }) => {console.log(body)
+          .then(({ body }) => {
           expect(body.msg).to.eql("No such article, aim lower");
           });
       });
@@ -745,7 +756,7 @@ it("ERROR HANDLES - rejects a non-existent topic with a 404 ERROR", () => {
       .patch("/api/comments/1000")
       .send({ inc_votes: 4 })
       .expect(404)
-      .then(({ body }) => {console.log(body)
+      .then(({ body }) => {
         expect(body.msg).to.equal("No such comment exists");
       //   expect(body.comment).to.eql({
       //     comment_id: 3,

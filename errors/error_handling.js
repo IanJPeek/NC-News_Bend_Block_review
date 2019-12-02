@@ -4,7 +4,7 @@ const app = express();
 // require
 
 exports.handlePSQLErrors = (err, req, res, next) => {
-  console.log("PSQL", err);
+  // console.log("PSQL", err);
   if (err.code === "22P02"){
     res.status(400).send({msg:"invalid (bad) request - ids: numbers only; votes: I need your number, no strings ;)"})
   }
@@ -22,7 +22,7 @@ exports.handlePSQLErrors = (err, req, res, next) => {
 };
 
 exports.handleCustomErrors = (err, req, res, next) => {
-  console.log("custom", err);
+  // console.log("custom", err);
   res.status(err.status).send({ msg: err.msg });
 }
 
