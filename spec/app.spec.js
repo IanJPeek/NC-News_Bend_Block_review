@@ -225,9 +225,6 @@ it("ERROR HANDLES (with PSQL)- 404 - rejects a 'sort_by' for a column category t
     });
 });
 
-//  FAILS TESTS...
-//  If passes, other fails - "GET:200 - QUERY, responds with an array of articles, filtered by the topic value requested" (& hangs...)
-
 it("ERROR HANDLES - rejects a non-existent topic with a 404 ERROR", () => {
   return request(app)
     .get("/api/articles?topic=not_this_topic")
@@ -305,18 +302,7 @@ it("ERROR HANDLES - rejects a non-existent author with a 404 ERROR", () => {
             );
           });
       });
-      // ignore error test? - marginally too high number handled in the same way as non-existent number/ string?...
-      // it.only("ERROR HANDLES - returns a 404 error code for an article that don't exist (where number is too high, but not ridiculously so...)", () => {
-      //   return request(app)
-      //     .get("/api/articles/324")
-      //     .expect(404)
-      //     .then(({ body }) => {
-      //       expect(body.msg).to.equal(
-      //         "No such article found - slightly lower number please!"
-      //       );
-      //     });
-      // });
-
+      
       it("Responds to a patch request to increase the number of votes", () => {
         return request(app)
           .patch("/api/articles/7")
@@ -458,6 +444,7 @@ it("ERROR HANDLES - rejects a non-existent author with a 404 ERROR", () => {
            });
        });
 
+       // NOW FAILS ... Possibly? - BUMP in the carpet..
       it("ERROR HANDLES (with PSQL) - 400 - Responds to a POST request missing the required keys with a 400 status", () => {
         return request(app)
           .post("/api/articles/4/comments")
@@ -484,22 +471,20 @@ it("ERROR HANDLES - rejects a non-existent author with a 404 ERROR", () => {
           });
       });
 
-      xit("ERROR HANDLES - 422 - Responds with a 422:Unprocessable entity code when a POST request is made to a valid 'article_id' which does not exist", () => {
+      it("ERROR HANDLES - 422 - Responds with a 422:Unprocessable entity code when a POST request is made to a valid 'article_id' which does not exist", () => {
         return request(app)
           .post("/api/articles/413/comments")
           .send({
             username: "butter_bridge",
             body: "My thoughts exactly! -Exactly the entire opposite."
           })
-          .expect(422)
-          .then(({ body }) => {;
-            expect(body.msg).to.equal(
-              "Unprocessable entity - article does not exist"
-            );
+          .expect(404)
+          .then(({ body }) => {
+            expect(body.msg).to.equal("No such article number!");
           });
       });
 
-     xit("ERROR HANDLES - Responds with a 400: Bad Request when a POST request is made with an invalid 'article_id'",
+     it("ERROR HANDLES - Responds with a 400: Bad Request when a POST request is made with an invalid 'article_id'",
         () => {
           return request(app)
             .post("/api/articles/not_an_article_number/comments")
@@ -510,7 +495,7 @@ it("ERROR HANDLES - rejects a non-existent author with a 404 ERROR", () => {
             .expect(400)
             .then(({ body }) => {
               expect(body.msg).to.equal(
-                "Numbers only for article ids, please."
+                "Invalid article_id - must be a number"
               );
             });
         });
@@ -589,9 +574,9 @@ it("ERROR HANDLES - rejects a non-existent author with a 404 ERROR", () => {
       it("GET:200, responds with an empty array when a GET request is made to an article which exists, but has no comments attached to it", () => {
         return request(app)
           .get("/api/articles/2/comments")
-          .expect(200)
+          // .expect(200)
           .then(({ body }) =>{
-            expect(body.comments).to.eql([])
+            expect(body.msg).to.eql([])
           });
       });
 
@@ -619,50 +604,17 @@ it("POST: responds to a POST request by returning the POSTed comment on a key of
         votes: 0,
         body: "My thoughts exactly! -Exactly the entire opposite."
       });
-      /*
-.post("/api/articles/1/comments")
-          .send({
-            username: "butter_bridge",
-            body: "My thoughts exactly! -Exactly the entire opposite."
-          })
-          .expect(201)
-          .then(({ body }) => {console.log(body)
-*/
-
-      // .expect(200)
-      // .then(({ body }) => {
-      //   console.log(body);
-      //   expect(body.comment).to.contain.keys(
-      //     "comment_id",
-      //     "votes",
-      //     "body",
-      //     "author",
-      //     "created_at"
-      //   );
-      //   expect(body.comment).to.eql({
-      //     comment_id: 2,
-      //     author: "butter_bridge",
-      //     article_id: 1,
-      //     votes: 14,
-      //     created_at: "2016-11-22T12:36:03.389Z",
-      //     body:
-      //       "The beautiful thing about treasure is that it exists. Got to find out what kind of sheets these are; not cotton, not rayon, silky."
-        // });
+    
 
       })
   );
 });
-
-
-      // FAILS TEST
-      // IMPLEMENT logic for No. before, empty array after?
-      // OUTED, FOR NOW...
-      xit("ERROR HANDLES - responds with a 404 when a request is made using a valid article_id no. where the article does not exist", () => {
+      it("ERROR HANDLES - responds with a 404 when a request is made using a valid article_id no. where the article does not exist", () => {
         return request(app)
           .get("/api/articles/567/comments")
           .expect(404)
           .then(({ body }) => {
-          expect(body.msg).to.eql("No such article, aim lower");
+          expect(body.msg).to.eql("No such article number!");
           });
       });
 
@@ -674,24 +626,6 @@ it("POST: responds to a POST request by returning the POSTed comment on a key of
             expect(body.comments).to.be.descendingBy("votes");
           });
       });
-
-      //  it.only("GET:200 - QUERY, responds with an array of articles, sorted in ascending order when requested)", () => {
-      //    return request(app)
-      //      .get("/api/articles/1/comments?order=asc")
-      //      .expect(200)
-      //      .then(({ body }) => {console.log(body)
-      //       //  expect(body.articles[0]).to.eql({
-      //       //    article_id: 12,
-      //       //    title: "Moustache",
-      //       //    body: "Have you seen the size of that thing?",
-      //       //    votes: 0,
-      //       //    topic: "mitch",
-      //       //    author: "butter_bridge",
-      //       //    created_at: "1974-11-26T12:21:54.171Z",
-      //       //    comment_count: "0"
-      //       //  });
-      //      });
-      //  });
 
       it("ERROR HANDLING (with PSQL)- QUERY - will reject a SORT_BY for an invalid column", () => {
         return request(app)

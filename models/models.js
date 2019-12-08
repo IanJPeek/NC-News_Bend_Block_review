@@ -7,6 +7,7 @@ exports.selectTopics = () => {
 exports.selectUsers = () => {
   return connection.select("*").from("users");
 };
+
 exports.grabUser = username => {
   return connection
     .select("*")
@@ -23,7 +24,6 @@ exports.grabUser = username => {
       return user;
     });
 };
-
 
 exports.selectArticles = (query) => {
   const { sort_by, order_by, author, topic, order } = query
@@ -45,25 +45,33 @@ exports.selectArticles = (query) => {
   });
 };
 
-//NOT USED AT PRESENT - CONSIDER REFACTOR
-exports.checkTopicExists = query => {
-  const { topic } = req.query;
-  if (topic === "mitch" || topic === "cats" || topic === "paper")
-  
-  {console.log("returning");}
+exports.checkArticleExists = (article_id) => {
+return connection
+    .select("articles.*")
+    .from("articles")
+    .where("articles.article_id", article_id)
+    .leftJoin("comments", "articles.article_id", "=", "comments.article_id")
+    .count("comment_id AS comment_count")
+    .groupBy("articles.article_id")
+    .orderBy("articles.article_id")
+    .then(article => {
 
-  // selectArticles(query)
-  else
-  {
-    console.log("rejecting");
-    return Promise.reject({
-      status: 404,
-      msg: "Not Found - That aint a thing"
-    })
-    // topic.next();
-  }
-  console.log("end of exists checks - returning")
-  return (query)
+      // Article does not exist ERROR
+    if (article.length === 0) {
+      return Promise.reject({
+        msg: "No such article number!",
+        status: 404
+      });
+    }
+
+    // ARTICLE EXISTS but no comments - empty array return
+      if (article.length>0 && +article[0].comment_count ===0){
+        return Promise.reject({
+          msg: [],
+          status: 200
+        });
+      }
+})
 }
 
 exports.grabArticle = article_id => {
@@ -85,6 +93,7 @@ exports.grabArticle = article_id => {
       return article[0];
     });
 };
+
 exports.adjustArticleVote = (article_id, adjustNumber) => {
   if (adjustNumber === undefined) {
     adjustNumber = 0;
@@ -112,12 +121,13 @@ exports.adjustArticleVote = (article_id, adjustNumber) => {
       return { article, msg: "Votes recounted" };
     });
 };
+
 exports.postNewArticleComment = (article_id, user, comment) => {
 return (
   connection
     .select("*")
     .from("comments")
-    .where("article_id", +article_id)
+    .where("article_id", article_id)
     .insert({ author: user, body: comment })
     .returning("*")
     .then(commentedArticle => {
@@ -126,21 +136,6 @@ return (
     })
 );
   };
-  
-  
-  // if (typeof article_id !== "number") {
-  //   console.log("rejecting")
-  //       return Promise.reject({
-  //         msg: "Numbers only for article ids, please.",
-  //         status: 400
-  //       });
-  //     }
-
-  // // if (commentedArticle[article_id] !== article_id){return Promise.reject({
-  // //     msg: "Unprocessable entity - article does not exist",
-  // //     status: 422
-  // //   })
-  //   ;}
 
 exports.selectArticleComments = (article_id, query) => {
   const { sort_by, order_by, author, topic, order } = query;
@@ -151,16 +146,15 @@ exports.selectArticleComments = (article_id, query) => {
     .orderBy(sort_by || "created_at", order_by || order ||"desc",)
     .returning("*")
     .then(artComment => {
-      //  ERROR - CHECK article/ article_id exists, or breaks empty array return...
-      // console.log(artComment);
-      // if (artComment.length === 0 && ) {return Promise.reject ({
-      //     msg: "No such article, aim lower",
-      //     status: 404
-      //   });
-      // }
+      if (article_id > 0 && artComment.length === 0) {
+ return Promise.reject ({
+          msg: "No such article number!",
+          status: 404
+        });
+      }
       return artComment;
-    });
-};
+      })   
+    }
 
 exports.selectComments = () => {
   return connection.select("*").from("comments");

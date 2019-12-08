@@ -1,5 +1,4 @@
 const {
-  errRoute,
   selectTopics,
   selectUsers,
   selectArticles,
@@ -7,7 +6,7 @@ const {
   grabUser,
   grabArticle,
   selectArticleComments,
-  checkTopicExists,
+  checkArticleExists,
   grabComment,
   adjustArticleVote,
   postNewArticleComment,
@@ -37,6 +36,7 @@ const getUsers = (req, res, next) => {
     })
     .catch(next);
 };
+
 const getSingleUser = (req, res, next) => {
   const {username} = req.params
   grabUser(username).then(user => {
@@ -44,13 +44,11 @@ const getSingleUser = (req, res, next) => {
   }).catch(next);
 };
 
-
-//CHECK FOR EXIST NEEDED HERE
 const getArticles = (req, res, next) => {
 
 const { topic,author } = req.query;
 
-//ERROR-Handling for "If X exists" - temporary working solution - consider refactor in models & check against table!
+// "If X exists" - ERROR-handling: temp/ working solution - consider refactor in models with check against table!
 if (
   (Object.keys(req.query).includes("topic")) &&
   !(topic === "mitch" || topic === "cats" || topic === "paper"))
@@ -107,24 +105,55 @@ const increaseArticleVotes = (req,res,next) => {
 const addArticleComment = (req,res,next) => {
 const objectKeys = Object.keys(req.body);
 
+// 2 KEYS in body of post, else ERROR
+if (objectKeys.length !==2){
+  res
+    .status(400)
+    .send({ msg: "Please include username AND body in POST request" });
+}
+
+// "username" KEY in post, else ERROR
 if (objectKeys.includes("username") === false) {
   res
     .status(400)
     .send({ msg: "Please include username AND body in POST request" });
   }
-  else{
+  else
+  {
+
 const { article_id } = req.params;
+
+if (article_id > 0){
 const user = req.body.username;
 const comment = req.body.body
-postNewArticleComment(article_id, user, comment)
-.then(comment => {
-  res.status(201).send({comment})
-}).catch(next)}
+
+  selectArticleComments(article_id, req.query).then(comments => {
+if (comments.length ===0){
+  res
+  .status(422)
+  .send({ msg: "No such article number"});
+  }
+  }).catch(next);
+
+  postNewArticleComment(article_id, user, comment)
+    .then(comment => {
+      res.status(201).send({ comment });
+    })
+    .catch(next);}
+
+else {
+res.status(400).send({ msg: "Invalid article_id - must be a number" });
+}
+
+  }
 }
 
 const getArticleComments =(req,res, next) => {
+
   const {article_id} = req.params;
   
+  checkArticleExists(article_id, req.query).catch(next);
+
     selectArticleComments(article_id, req.query)
       .then(comments => {
         res.status(200).send({ comments });
