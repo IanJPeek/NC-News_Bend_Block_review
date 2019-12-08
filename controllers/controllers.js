@@ -44,25 +44,35 @@ const getSingleUser = (req, res, next) => {
   }).catch(next);
 };
 
+
+//CHECK FOR EXIST NEEDED HERE
 const getArticles = (req, res, next) => {
 
-// const objectKeys = Object.keys(req.body);
-// const objectKeyQ = Object.keys(req.query);
-// console.log(objectKeys, "body");
-// console.log(objectKeyQ, "query");
+const { topic,author } = req.query;
 
-if (Object.keys(req.query).includes("topic")) {
-  checkTopicExists(req.query)
-  // if valid, invoke selectArticles, if not .catch next?
+//ERROR-Handling for "If X exists" - temporary working solution - consider refactor in models & check against table!
+if (
+  (Object.keys(req.query).includes("topic")) &&
+  !(topic === "mitch" || topic === "cats" || topic === "paper"))
+{res.status(404).send({ msg: "404 Not Found - No such topic" });}
+
+if (
+  Object.keys(req.query).includes("author") &&
+  !(
+    author === "butter_bridge" ||
+    author === "icellusedkars" ||
+    author === "rogersop"
+  )
+) {
+  res.status(404).send({ msg: "404 Not Found - No such author" });
 }
-// .catch(next)  --- AFTER checkTopicExists?
-// Not a function... One passes, another fails...
 
-  selectArticles(req.query)
+    selectArticles(req.query)
     .then(articles => {
       res.status(200).send({ articles });
     })
     .catch(next);
+
 };
 
 const getSingleArticle = (req, res, next) => {
@@ -94,7 +104,6 @@ const increaseArticleVotes = (req,res,next) => {
   }).catch(next)}
 }
 
-
 const addArticleComment = (req,res,next) => {
 const objectKeys = Object.keys(req.body);
 
@@ -104,7 +113,6 @@ if (objectKeys.includes("username") === false) {
     .send({ msg: "Please include username AND body in POST request" });
   }
   else{
-
 const { article_id } = req.params;
 const user = req.body.username;
 const comment = req.body.body

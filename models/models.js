@@ -27,19 +27,7 @@ exports.grabUser = username => {
 
 exports.selectArticles = (query) => {
   const { sort_by, order_by, author, topic, order } = query
-  // console.log(sort_by);
-  // if (topic !== "mitch" || "cats" || "paper")
-  // {checkArticleExists(topic)}
-  console.log("getting article?")
-  console.log(query)
-  
-  // MAKES CODE HANG/ BREAK?
-  // const columns = ["votes", "topic", "author", "created_at", "comment_count", "title", "body", "article_id"]
-  // if (colummns.includes(sort_by) === false){console.log("rejecting")
-  //   return Promise.reject({status: 404, msg: "not a valid category to sort_by..."})
-  // }
-  
-  // pseudo if "includes" for sort_by does not match Columns array... REJECT
+
   return connection
   .select("articles.*")
   .from("articles")
@@ -57,13 +45,13 @@ exports.selectArticles = (query) => {
   });
 };
 
+//NOT USED AT PRESENT - CONSIDER REFACTOR
 exports.checkTopicExists = query => {
-  console.log("checking topic")
-  const { topic } = query;
+  const { topic } = req.query;
   if (topic === "mitch" || topic === "cats" || topic === "paper")
   
   {console.log("returning");}
-  
+
   // selectArticles(query)
   else
   {
@@ -74,7 +62,8 @@ exports.checkTopicExists = query => {
     })
     // topic.next();
   }
- return (query)
+  console.log("end of exists checks - returning")
+  return (query)
 }
 
 exports.grabArticle = article_id => {
@@ -124,7 +113,21 @@ exports.adjustArticleVote = (article_id, adjustNumber) => {
     });
 };
 exports.postNewArticleComment = (article_id, user, comment) => {
-
+return (
+  connection
+    .select("*")
+    .from("comments")
+    .where("article_id", +article_id)
+    .insert({ author: user, body: comment })
+    .returning("*")
+    .then(commentedArticle => {
+      commentedArticle = commentedArticle[0];
+      return commentedArticle;
+    })
+);
+  };
+  
+  
   // if (typeof article_id !== "number") {
   //   console.log("rejecting")
   //       return Promise.reject({
@@ -133,22 +136,12 @@ exports.postNewArticleComment = (article_id, user, comment) => {
   //       });
   //     }
 
-  return connection
-    .select("*")
-    .from("articles")
-    .where("article_id", article_id)
-    .insert({ title: "thoughts", author: user, body: comment })
-    .returning("*")
-    .then(commentedArticle => {
-      commentedArticle = commentedArticle[0]
-      // // if (commentedArticle[article_id] !== article_id){return Promise.reject({
-      // //     msg: "Unprocessable entity - article does not exist",
-      // //     status: 422
-      // //   })
-      //   ;}
-      return commentedArticle;
-    });
-};
+  // // if (commentedArticle[article_id] !== article_id){return Promise.reject({
+  // //     msg: "Unprocessable entity - article does not exist",
+  // //     status: 422
+  // //   })
+  //   ;}
+
 exports.selectArticleComments = (article_id, query) => {
   const { sort_by, order_by, author, topic, order } = query;
   return connection
