@@ -12,9 +12,5 @@ apiRouter.use("/comments", commentRouter);
 const { send404, send405 } = require("../controllers/controllers");
 
 apiRouter.route("/*").get(send404).all(send405)
-// , (req, res, next) =>
-//   res.status(404).send({ msg: "404 Not Found - Invalid Route" })
-  // .all
-// );
 
 module.exports = apiRouter;
