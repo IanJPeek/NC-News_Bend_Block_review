@@ -600,7 +600,7 @@ it("POST: responds to a POST request by returning the POSTed comment on a key of
       expect(body.comment).to.contain({
         comment_id: 19,
         author: "butter_bridge",
-        article_id: null,
+        article_id: 1,
         votes: 0,
         body: "My thoughts exactly! -Exactly the entire opposite."
       });

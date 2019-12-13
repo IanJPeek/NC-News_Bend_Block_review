@@ -125,10 +125,10 @@ exports.adjustArticleVote = (article_id, adjustNumber) => {
 exports.postNewArticleComment = (article_id, user, comment) => {
 return (
   connection
-    .select("*")
-    .from("comments")
-    .where("article_id", article_id)
-    .insert({ author: user, body: comment })
+    // .select("*")
+    // .from("comments")
+    // // .where("article_id", article_id)
+    .insert({ author: user, body: comment,article_id: article_id }).into("comments")
     .returning("*")
     .then(commentedArticle => {
       commentedArticle = commentedArticle[0];
