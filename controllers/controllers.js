@@ -62,7 +62,6 @@ const getArticles = (req, res, next) => {
       checkAuthorExists(author).catch(next)
     }
 
-  console.log("controllers: moving past author check");
   selectArticles(req.query)
     .then(articles => {
       res.status(200).send({ articles });

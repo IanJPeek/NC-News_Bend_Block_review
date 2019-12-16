@@ -78,10 +78,6 @@ exports.checkTopicExists = topic => {
     .select("articles.*")
     .from("articles")
     .where("articles.topic", topic)
-    .leftJoin("comments", "articles.article_id", "=", "comments.article_id")
-    .count("comment_id AS comment_count")
-    .groupBy("articles.article_id")
-    .orderBy("articles.article_id")
     .then(article => {
       // Topic does not exist ERROR
       if (article.length === 0) {
@@ -98,10 +94,6 @@ exports.checkAuthorExists = author => {
     .select("articles.*")
     .from("articles")
     .where("articles.author", author)
-    .leftJoin("comments", "articles.article_id", "=", "comments.article_id")
-    .count("comment_id AS comment_count")
-    .groupBy("articles.article_id")
-    .orderBy("articles.article_id")
     .then(article => {
       // Author does not exist ERROR
       if (article.length === 0) {
@@ -164,9 +156,6 @@ exports.adjustArticleVote = (article_id, adjustNumber) => {
 exports.postNewArticleComment = (article_id, user, comment) => {
   return (
     connection
-      // .select("*")
-      // .from("comments")
-      // // .where("article_id", article_id)
       .insert({ author: user, body: comment, article_id: article_id })
       .into("comments")
       .returning("*")
@@ -199,6 +188,7 @@ exports.selectArticleComments = (article_id, query) => {
 exports.selectComments = () => {
   return connection.select("*").from("comments");
 };
+
 exports.grabComment = comment_id => {
   return connection
     .select("*")
@@ -210,6 +200,7 @@ exports.grabComment = comment_id => {
       return comment;
     });
 };
+
 exports.adjustCommentVote = (comment_id, adjustNumber) => {
   if (adjustNumber === undefined) {
     adjustNumber = 0;
