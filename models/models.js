@@ -20,33 +20,33 @@ exports.grabUser = username => {
           status: 404
         });
       }
-      user = user[0]
+      user = user[0];
       return user;
     });
 };
 
-exports.selectArticles = (query) => {
-  const { sort_by, order_by, author, topic, order } = query
+exports.selectArticles = query => {
+  const { sort_by, order_by, author, topic, order } = query;
 
   return connection
-  .select("articles.*")
-  .from("articles")
-  .leftJoin("comments", "articles.article_id", "=", "comments.article_id")
-  .count("comment_id AS comment_count")
-  .groupBy("articles.article_id")
-  .modify(query => {
-    if (author) query.where("articles.author", author);
-    if (topic) query.where("articles.topic", topic);
-  })
-  .orderBy(sort_by || "created_at", order_by || order || "desc")
-  .returning("*")
-  .then(joinedArtComms => {
-    return joinedArtComms;
-  });
+    .select("articles.*")
+    .from("articles")
+    .leftJoin("comments", "articles.article_id", "=", "comments.article_id")
+    .count("comment_id AS comment_count")
+    .groupBy("articles.article_id")
+    .modify(query => {
+      if (author) query.where("articles.author", author);
+      if (topic) query.where("articles.topic", topic);
+    })
+    .orderBy(sort_by || "created_at", order_by || order || "desc")
+    .returning("*")
+    .then(joinedArtComms => {
+      return joinedArtComms;
+    });
 };
 
-exports.checkArticleExists = (article_id) => {
-return connection
+exports.checkArticleExists = article_id => {
+  return connection
     .select("articles.*")
     .from("articles")
     .where("articles.article_id", article_id)
@@ -55,24 +55,63 @@ return connection
     .groupBy("articles.article_id")
     .orderBy("articles.article_id")
     .then(article => {
-
       // Article does not exist ERROR
-    if (article.length === 0) {
-      return Promise.reject({
-        msg: "No such article number!",
-        status: 404
-      });
-    }
+      if (article.length === 0) {
+        return Promise.reject({
+          msg: "No such article number!",
+          status: 404
+        });
+      }
 
-    // ARTICLE EXISTS but no comments - empty array return
-      if (article.length>0 && +article[0].comment_count ===0){
+      // ARTICLE EXISTS but no comments - empty array return
+      if (article.length > 0 && +article[0].comment_count === 0) {
         return Promise.reject({
           msg: [],
           status: 200
         });
       }
-})
-}
+    });
+};
+
+exports.checkTopicExists = topic => {
+  return connection
+    .select("articles.*")
+    .from("articles")
+    .where("articles.topic", topic)
+    .leftJoin("comments", "articles.article_id", "=", "comments.article_id")
+    .count("comment_id AS comment_count")
+    .groupBy("articles.article_id")
+    .orderBy("articles.article_id")
+    .then(article => {
+      // Topic does not exist ERROR
+      if (article.length === 0) {
+        return Promise.reject({
+          msg: "No such topic!",
+          status: 404
+        });
+      }
+    });
+};
+
+exports.checkAuthorExists = author => {
+  return connection
+    .select("articles.*")
+    .from("articles")
+    .where("articles.author", author)
+    .leftJoin("comments", "articles.article_id", "=", "comments.article_id")
+    .count("comment_id AS comment_count")
+    .groupBy("articles.article_id")
+    .orderBy("articles.article_id")
+    .then(article => {
+      // Author does not exist ERROR
+      if (article.length === 0) {
+        return Promise.reject({
+          msg: "No such author!",
+          status: 404
+        });
+      }
+    });
+};
 
 exports.grabArticle = article_id => {
   return connection
@@ -117,25 +156,26 @@ exports.adjustArticleVote = (article_id, adjustNumber) => {
           status: 422
         });
       }
-      article = article[0]
+      article = article[0];
       return { article, msg: "Votes recounted" };
     });
 };
 
 exports.postNewArticleComment = (article_id, user, comment) => {
-return (
-  connection
-    // .select("*")
-    // .from("comments")
-    // // .where("article_id", article_id)
-    .insert({ author: user, body: comment,article_id: article_id }).into("comments")
-    .returning("*")
-    .then(commentedArticle => {
-      commentedArticle = commentedArticle[0];
-      return commentedArticle;
-    })
-);
-  };
+  return (
+    connection
+      // .select("*")
+      // .from("comments")
+      // // .where("article_id", article_id)
+      .insert({ author: user, body: comment, article_id: article_id })
+      .into("comments")
+      .returning("*")
+      .then(commentedArticle => {
+        commentedArticle = commentedArticle[0];
+        return commentedArticle;
+      })
+  );
+};
 
 exports.selectArticleComments = (article_id, query) => {
   const { sort_by, order_by, author, topic, order } = query;
@@ -143,18 +183,18 @@ exports.selectArticleComments = (article_id, query) => {
     .select("*")
     .from("comments")
     .where("article_id", article_id)
-    .orderBy(sort_by || "created_at", order_by || order ||"desc",)
+    .orderBy(sort_by || "created_at", order_by || order || "desc")
     .returning("*")
     .then(artComment => {
       if (article_id > 0 && artComment.length === 0) {
- return Promise.reject ({
+        return Promise.reject({
           msg: "No such article number!",
           status: 404
         });
       }
       return artComment;
-      })   
-    }
+    });
+};
 
 exports.selectComments = () => {
   return connection.select("*").from("comments");
@@ -165,7 +205,10 @@ exports.grabComment = comment_id => {
     .from("comments")
     .where("comment_id", comment_id)
     .returning("*")
-    .then(comment => {comment = comment[0]; return comment})
+    .then(comment => {
+      comment = comment[0];
+      return comment;
+    });
 };
 exports.adjustCommentVote = (comment_id, adjustNumber) => {
   if (adjustNumber === undefined) {
@@ -177,24 +220,28 @@ exports.adjustCommentVote = (comment_id, adjustNumber) => {
     .where("comment_id", comment_id)
     .increment("votes", adjustNumber)
     .returning("*")
-    .then(comment => {comment = comment[0]
+    .then(comment => {
+      comment = comment[0];
 
-if (comment === undefined) {return Promise.reject({msg: "No such comment exists", status: 404})}
+      if (comment === undefined) {
+        return Promise.reject({ msg: "No such comment exists", status: 404 });
+      }
 
       return { comment, msg: "Votes recounted" };
     });
 };
 
-exports.removeComment = (comment_id) => {
-  return connection('comments').where({comment_id})
-  .del()
-  .then((rowsDeleted) => {
-    if (rowsDeleted === 0) {
-      return Promise.reject({
-        status: 404,
-        msg: "comment not found"
-      })
-    }
-    return rowsDeleted
-  })
-}
+exports.removeComment = comment_id => {
+  return connection("comments")
+    .where({ comment_id })
+    .del()
+    .then(rowsDeleted => {
+      if (rowsDeleted === 0) {
+        return Promise.reject({
+          status: 404,
+          msg: "comment not found"
+        });
+      }
+      return rowsDeleted;
+    });
+};

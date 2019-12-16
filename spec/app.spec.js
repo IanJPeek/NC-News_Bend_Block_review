@@ -230,7 +230,7 @@ it("ERROR HANDLES - rejects a non-existent topic with a 404 ERROR", () => {
     .get("/api/articles?topic=not_this_topic")
     .expect(404)
     .then(({ body }) => {
-      expect(body.msg).to.equal("404 Not Found - No such topic");
+      expect(body.msg).to.equal("No such topic!");
     });
 });
 
@@ -239,7 +239,7 @@ it("ERROR HANDLES - rejects a non-existent author with a 404 ERROR", () => {
     .get("/api/articles?author=not_this_guy")
     .expect(404)
     .then(({ body }) => {
-      expect(body.msg).to.equal("404 Not Found - No such author");
+      expect(body.msg).to.equal("No such author!");
     });
 });
 
@@ -737,15 +737,6 @@ it("POST: responds to a POST request by returning the POSTed comment on a key of
       .expect(404)
       .then(({ body }) => {
         expect(body.msg).to.equal("No such comment exists");
-      //   expect(body.comment).to.eql({
-      //     comment_id: 3,
-      //     author: "icellusedkars",
-      //     article_id: 1,
-      //     votes: 101,
-      //     created_at: "2015-11-23T12:36:03.389Z",
-      //     body:
-      //       "Replacing the quiet elegance of the dark suit and tie with the casual indifference of these muted earth tones is a form of fashion suicide, but, uh, call me crazy — onyou it works."
-      //   });
       });
   });
 
