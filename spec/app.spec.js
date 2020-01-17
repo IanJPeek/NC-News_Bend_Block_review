@@ -7,8 +7,6 @@ const chai = require("chai");
 const chaiSorted = require("chai-sorted");
 const connection = require("../db/connection");
 
-chai.use(chaiSorted);
-
 
 describe("/api", () => {
   beforeEach(() => connection.seed.run());
@@ -268,7 +266,7 @@ it("ERROR HANDLES - rejects a non-existent author with a 404 ERROR", () => {
           .expect(400)
           .then(({ body }) => {
             expect(body.msg).to.equal(
-              "invalid (bad) request - ids: numbers only; votes: I need your number, no strings ;)"
+              "invalid (bad) request - ids should be numbers only"
             );
           });
       });
@@ -389,7 +387,7 @@ it("ERROR HANDLES - rejects a non-existent author with a 404 ERROR", () => {
           .expect(400)
           .then(({ body }) => {
             expect(body.msg).to.equal(
-              "invalid (bad) request - ids: numbers only; votes: I need your number, no strings ;)"
+              "invalid (bad) request - votes must be set with a number"
             );
           });
       });
@@ -651,7 +649,7 @@ it("POST: responds to a POST request by returning the POSTed comment on a key of
           .expect(400)
           .then(({ body }) => {
             expect(body.msg).to.equal(
-              "invalid (bad) request - ids: numbers only; votes: I need your number, no strings ;)"
+              "invalid (bad) request - ids: numbers only"
             );
           });
       });
@@ -769,13 +767,13 @@ it("POST: responds to a POST request by returning the POSTed comment on a key of
       .delete("/api/comments/303")
       .expect(404);
   });
-  it("ERROR HANDLES: (suing PSQL) responds with a 400 when asked to delete a comment-id which is eg not a number", () => {
+  it("ERROR HANDLES: (using PSQL) responds with a 400 when asked to delete a comment-id which is eg not a number", () => {
     return request(app)
       .delete("/api/comments/mysterymusing")
       .expect(400)
       .then(({ body }) => {
         expect(body.msg).to.equal(
-          "invalid (bad) request - ids: numbers only; votes: I need your number, no strings ;)"
+          "invalid (bad) request - ids/ votes: numbers only"
         );
       });
   });
