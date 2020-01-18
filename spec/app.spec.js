@@ -7,30 +7,31 @@ const chai = require("chai");
 const chaiSorted = require("chai-sorted");
 const connection = require("../db/connection");
 
+chai.use(chaiSorted);
 
 describe("/api", () => {
   beforeEach(() => connection.seed.run());
   after(() => connection.destroy());
-  
-    describe("/*", () => {
-      it("Error handles an invalid route with a 404 response", () => {
-        return request(app)
-          .get("/api/anyOldThingYouDontGot")
-          .expect(404)
-          .then(({ body }) => {
-            expect(body.msg).to.equal("404 Not Found - Invalid Route");
-          });
-      });
-    });
 
-    it("ERROR HANDLES invalid methods - eg an attempt to DELETE on api/", () => {
+  describe("/*", () => {
+    it("Error handles an invalid route with a 404 response", () => {
       return request(app)
-        .delete("/api")
-        .expect(405)
+        .get("/api/anyOldThingYouDontGot")
+        .expect(404)
         .then(({ body }) => {
-          expect(body.msg).to.equal("method not allowed");
+          expect(body.msg).to.equal("404 Not Found - Invalid Route");
         });
     });
+  });
+
+  it("ERROR HANDLES invalid methods - eg an attempt to DELETE on api/", () => {
+    return request(app)
+      .delete("/api")
+      .expect(405)
+      .then(({ body }) => {
+        expect(body.msg).to.equal("method not allowed");
+      });
+  });
 
   // TOPICS
   describe("/topics", () => {
@@ -44,15 +45,15 @@ describe("/api", () => {
     });
   });
 
-  it('ERROR HANDLES invalid methods - eg an attempt to PATCH on api/topics', () => {
+  it("ERROR HANDLES invalid methods - eg an attempt to PATCH on api/topics", () => {
     return request(app)
       .patch("/api/topics")
       .send({ msg: "these words aint a patch on you" })
       .expect(405)
       .then(({ body }) => {
-        expect(body.msg).to.equal("method not allowed")
+        expect(body.msg).to.equal("method not allowed");
       });
-});
+  });
 
   describe("/users", () => {
     it("GET:200, responds with an array of users", () => {
@@ -88,22 +89,19 @@ describe("/api", () => {
     });
 
     it("ERROR HANDLES invalid methods - eg an attempt to PUT on api/users/butter_bridge", () => {
-    return request(app)
-      .put("/api/users/butter_bridge")
-      .send({
-        username: "butter_bridge",
-        name: "Mr Butter Pants",
-        avatar_url:
-          "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
-      })
-      .expect(405)
-      .then(({ body }) => {
-        expect(body.msg).to.equal("method not allowed");
-      });
-    })
-  
-    
-    
+      return request(app)
+        .put("/api/users/butter_bridge")
+        .send({
+          username: "butter_bridge",
+          name: "Mr Butter Pants",
+          avatar_url:
+            "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
+        })
+        .expect(405)
+        .then(({ body }) => {
+          expect(body.msg).to.equal("method not allowed");
+        });
+    });
   });
 
   //ARTICLES
@@ -159,16 +157,16 @@ describe("/api", () => {
         .get("/api/articles?order=asc")
         .expect(200)
         .then(({ body }) => {
-       expect(body.articles[0]).to.eql({
-         article_id: 12,
-         title: "Moustache",
-         body: "Have you seen the size of that thing?",
-         votes: 0,
-         topic: "mitch",
-         author: "butter_bridge",
-         created_at: "1974-11-26T12:21:54.171Z",
-         comment_count: "0"
-       });
+          expect(body.articles[0]).to.eql({
+            article_id: 12,
+            title: "Moustache",
+            body: "Have you seen the size of that thing?",
+            votes: 0,
+            topic: "mitch",
+            author: "butter_bridge",
+            created_at: "1974-11-26T12:21:54.171Z",
+            comment_count: "0"
+          });
         });
     });
 
@@ -214,42 +212,42 @@ describe("/api", () => {
           expect(body.articles[5].topic).to.equal("mitch");
         });
     });
-it("ERROR HANDLES (with PSQL)- 404 - rejects a 'sort_by' for a column category that does not exist", () => {
-  return request(app)
-    .get("/api/articles?sort_by=junk")
-    .expect(400)
-    .then(({ body }) => {
-      expect(body.msg).to.equal("not a valid category to sort_by...");
+    it("ERROR HANDLES (with PSQL)- 404 - rejects a 'sort_by' for a column category that does not exist", () => {
+      return request(app)
+        .get("/api/articles?sort_by=junk")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).to.equal("not a valid category to sort_by...");
+        });
     });
-});
 
-it("ERROR HANDLES - rejects a non-existent topic with a 404 ERROR", () => {
-  return request(app)
-    .get("/api/articles?topic=not_this_topic")
-    .expect(404)
-    .then(({ body }) => {
-      expect(body.msg).to.equal("No such topic!");
+    it("ERROR HANDLES - rejects a non-existent topic with a 404 ERROR", () => {
+      return request(app)
+        .get("/api/articles?topic=not_this_topic")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).to.equal("No such topic!");
+        });
     });
-});
 
-it("ERROR HANDLES - rejects a non-existent author with a 404 ERROR", () => {
-  return request(app)
-    .get("/api/articles?author=not_this_guy")
-    .expect(404)
-    .then(({ body }) => {
-      expect(body.msg).to.equal("No such author!");
+    it("ERROR HANDLES - rejects a non-existent author with a 404 ERROR", () => {
+      return request(app)
+        .get("/api/articles?author=not_this_guy")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).to.equal("No such author!");
+        });
     });
-});
 
-    it('ERROR HANDLES invalid methods - eg an attempt to PATCH on api/articles', () => {
-    return request(app)
-      .patch("/api/articles")
-      .send({ msg: "these words aint a patch on you" })
-      .expect(405)
-      .then(({ body }) => {
-        expect(body.msg).to.equal("method not allowed")
-      });
-    })
+    it("ERROR HANDLES invalid methods - eg an attempt to PATCH on api/articles", () => {
+      return request(app)
+        .patch("/api/articles")
+        .send({ msg: "these words aint a patch on you" })
+        .expect(405)
+        .then(({ body }) => {
+          expect(body.msg).to.equal("method not allowed");
+        });
+    });
 
     describe("/articles", () => {
       it("GET:200, /:article_id responds with the requested article", () => {
@@ -266,11 +264,10 @@ it("ERROR HANDLES - rejects a non-existent author with a 404 ERROR", () => {
           .expect(400)
           .then(({ body }) => {
             expect(body.msg).to.equal(
-              "invalid (bad) request - ids should be numbers only"
+              "invalid (bad) request - request must contain a number"
             );
           });
       });
-
 
       it("GET:200, for a specific article responds with that article (including a comment count key/ value pair)", () => {
         return request(app)
@@ -300,7 +297,7 @@ it("ERROR HANDLES - rejects a non-existent author with a 404 ERROR", () => {
             );
           });
       });
-      
+
       it("Responds to a patch request to increase the number of votes", () => {
         return request(app)
           .patch("/api/articles/7")
@@ -387,7 +384,7 @@ it("ERROR HANDLES - rejects a non-existent author with a 404 ERROR", () => {
           .expect(400)
           .then(({ body }) => {
             expect(body.msg).to.equal(
-              "invalid (bad) request - votes must be set with a number"
+              "invalid (bad) request - request must contain a number"
             );
           });
       });
@@ -405,53 +402,53 @@ it("ERROR HANDLES - rejects a non-existent author with a 404 ERROR", () => {
       });
 
       it("ERROR HANDLES - PATCH:200 - api/articles/:article_id responds to a patch request to increase the number of votes with an empty body by ignoring and sending the original article back", () => {
-    return request(app)
-      .patch("/api/articles/7")
-      .send({ })
-      .expect(200)
-      .then(({ body }) => {
-        expect(body.msg).to.equal("Votes recounted");
-        expect(body.article).to.eql({
-          article_id: 7,
-          title: "Z",
-          body: "I was hungry.",
-          votes: 0,
-          topic: "mitch",
-          author: "icellusedkars",
-          created_at: "1994-11-21T12:21:54.171Z"
-        });
+        return request(app)
+          .patch("/api/articles/7")
+          .send({})
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.msg).to.equal("Votes recounted");
+            expect(body.article).to.eql({
+              article_id: 7,
+              title: "Z",
+              body: "I was hungry.",
+              votes: 0,
+              topic: "mitch",
+              author: "icellusedkars",
+              created_at: "1994-11-21T12:21:54.171Z"
+            });
+          });
       });
-  });
-
 
       it("ERROR HANDLES invalid methods - eg an attempt to PUT on api/articles", () => {
-         return request(app)
-           .put("/api/articles")
-           .send({
-             comment_id: 1,
-             author: "butter_bridge",
-             article_id: 9,
-             votes: 16,
-             created_at: "2017-11-22T12:36:03.389Z",
-             body:
-               "Oh, I've got a runny nose! Also, I'm a sultana!"
-           })
-           .expect(405)
-           .then(({ body }) => {
-             expect(body.msg).to.equal("method not allowed");
-           });
-       });
+        return request(app)
+          .put("/api/articles")
+          .send({
+            comment_id: 1,
+            author: "butter_bridge",
+            article_id: 9,
+            votes: 16,
+            created_at: "2017-11-22T12:36:03.389Z",
+            body: "Oh, I've got a runny nose! Also, I'm a sultana!"
+          })
+          .expect(405)
+          .then(({ body }) => {
+            expect(body.msg).to.equal("method not allowed");
+          });
+      });
 
-       // NOW FAILS ... Possibly? - BUMP in the carpet..
+      // NOW FAILS ... Possibly? - BUMP in the carpet..
       it("ERROR HANDLES (with PSQL) - 400 - Responds to a POST request missing the required keys with a 400 status", () => {
         return request(app)
           .post("/api/articles/4/comments")
           .send({
-            username: "butter_bridge",
+            username: "butter_bridge"
           })
           .expect(400)
           .then(({ body }) => {
-            expect(body.msg).to.equal("Please include username AND body in POST request")
+            expect(body.msg).to.equal(
+              "Please include username AND body in POST request"
+            );
           });
       });
 
@@ -482,21 +479,18 @@ it("ERROR HANDLES - rejects a non-existent author with a 404 ERROR", () => {
           });
       });
 
-     it("ERROR HANDLES - Responds with a 400: Bad Request when a POST request is made with an invalid 'article_id'",
-        () => {
-          return request(app)
-            .post("/api/articles/not_an_article_number/comments")
-            .send({
-              username: "butter_bridge",
-              body: "My thoughts exactly! -Exactly the entire opposite."
-            })
-            .expect(400)
-            .then(({ body }) => {
-              expect(body.msg).to.equal(
-                "Invalid article_id - must be a number"
-              );
-            });
-        });
+      it("ERROR HANDLES - Responds with a 400: Bad Request when a POST request is made with an invalid 'article_id'", () => {
+        return request(app)
+          .post("/api/articles/not_an_article_number/comments")
+          .send({
+            username: "butter_bridge",
+            body: "My thoughts exactly! -Exactly the entire opposite."
+          })
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).to.equal("Invalid article_id - must be a number");
+          });
+      });
 
       it("ERROR HANDLES invalid methods - eg an attempt to PUT on api/articles/2/comments", () => {
         return request(app)
@@ -507,17 +501,16 @@ it("ERROR HANDLES - rejects a non-existent author with a 404 ERROR", () => {
             article_id: 1,
             votes: 14,
             created_at: "2016-11-22T12:36:03.389Z",
-            body:
-              "The beautiful thing about treasure is it's SHINY!!!"
+            body: "The beautiful thing about treasure is it's SHINY!!!"
           })
           .expect(405)
           .then(({ body }) => {
             expect(body.msg).to.equal("method not allowed");
           });
       });
-//SEE THIS FOR POSTING COMMENT ERROR 
-// Are next 2 tests the same...?
-// RETURNS PROPER/ CORRECT COMMENTS!
+      //SEE THIS FOR POSTING COMMENT ERROR
+      // Are next 2 tests the same...?
+      // RETURNS PROPER/ CORRECT COMMENTS!
       it("GET:200, responds to a GET request for all comments on a given article_id with an array of comments", () => {
         return request(app)
           .get("/api/articles/1/comments")
@@ -529,20 +522,18 @@ it("ERROR HANDLES - rejects a non-existent author with a 404 ERROR", () => {
               "body",
               "author",
               "created_at"
-            )
-            expect(
-              body.comments[0]).to.eql({
-                comment_id: 2,
-                author: "butter_bridge",
-                article_id: 1,
-                votes: 14,
-                created_at: "2016-11-22T12:36:03.389Z",
-                body:
-                  "The beautiful thing about treasure is that it exists. Got to find out what kind of sheets these are; not cotton, not rayon, silky."
-              })
+            );
+            expect(body.comments[0]).to.eql({
+              comment_id: 2,
+              author: "butter_bridge",
+              article_id: 1,
+              votes: 14,
+              created_at: "2016-11-22T12:36:03.389Z",
+              body:
+                "The beautiful thing about treasure is that it exists. Got to find out what kind of sheets these are; not cotton, not rayon, silky."
+            });
           });
       });
-
 
       //DUPLICATE.. MODIFY/ TWEAK/ ADAPT!
       it("GET:200, responds to a GET request for all comments on a given article_id with an array of comments", () => {
@@ -570,49 +561,47 @@ it("ERROR HANDLES - rejects a non-existent author with a 404 ERROR", () => {
       });
 
       it("GET:200, responds with an empty array when a GET request is made to an article which exists, but has no comments attached to it", () => {
+        return (
+          request(app)
+            .get("/api/articles/2/comments")
+            // .expect(200)
+            .then(({ body }) => {
+              expect(body.msg).to.eql([]);
+            })
+        );
+      });
+
+      it("POST: responds to a POST request by returning the POSTed comment on a key of 'comment' & containing all expected keys", () => {
         return request(app)
-          .get("/api/articles/2/comments")
-          // .expect(200)
-          .then(({ body }) =>{
-            expect(body.msg).to.eql([])
+          .post("/api/articles/1/comments")
+          .send({
+            username: "butter_bridge",
+            body: "My thoughts exactly! -Exactly the entire opposite."
+          })
+          .then(({ body }) => {
+            expect(201);
+            expect(body.comment).to.contain.keys(
+              "comment_id",
+              "votes",
+              "body",
+              "author",
+              "created_at"
+            );
+            expect(body.comment).to.contain({
+              comment_id: 19,
+              author: "butter_bridge",
+              article_id: 1,
+              votes: 0,
+              body: "My thoughts exactly! -Exactly the entire opposite."
+            });
           });
       });
-
-it("POST: responds to a POST request by returning the POSTed comment on a key of 'comment' & containing all expected keys", () => {
-  return (
-    request(app)
-      .post("/api/articles/1/comments")
-      .send({
-        username: "butter_bridge",
-        body: "My thoughts exactly! -Exactly the entire opposite."
-      })
-      .then(({ body }) => {
-      expect(201)
-      expect(body.comment).to.contain.keys(
-          "comment_id",
-          "votes",
-          "body",
-          "author",
-          "created_at"
-        )
-      expect(body.comment).to.contain({
-        comment_id: 19,
-        author: "butter_bridge",
-        article_id: 1,
-        votes: 0,
-        body: "My thoughts exactly! -Exactly the entire opposite."
-      });
-    
-
-      })
-  );
-});
       it("ERROR HANDLES - responds with a 404 when a request is made using a valid article_id no. where the article does not exist", () => {
         return request(app)
           .get("/api/articles/567/comments")
           .expect(404)
           .then(({ body }) => {
-          expect(body.msg).to.eql("No such article number!");
+            expect(body.msg).to.eql("No such article number!");
           });
       });
 
@@ -649,15 +638,13 @@ it("POST: responds to a POST request by returning the POSTed comment on a key of
           .expect(400)
           .then(({ body }) => {
             expect(body.msg).to.equal(
-              "invalid (bad) request - ids: numbers only"
+              "invalid (bad) request - request must contain a number"
             );
           });
       });
       // check if .length = expected no. of article comments...
     });
   });
-
-
 
   // COMMENTS
   describe("/comments", () => {
@@ -712,7 +699,7 @@ it("POST: responds to a POST request by returning the POSTed comment on a key of
   it("PATCH:200 - api/comments/:comment_id responds to a patch request with no 'inc_votes' body with a 200 status and unchanged comment", () => {
     return request(app)
       .patch("/api/comments/3")
-      .send({ })
+      .send({})
       .expect(200)
       .then(({ body }) => {
         expect(body.msg).to.equal("Votes recounted");
@@ -747,15 +734,13 @@ it("POST: responds to a POST request by returning the POSTed comment on a key of
         article_id: 1,
         votes: 100,
         created_at: "2015-11-23T12:36:03.389Z",
-        body:
-          "Fashion is the passion of a fruit in a suit."
+        body: "Fashion is the passion of a fruit in a suit."
       })
       .expect(405)
       .then(({ body }) => {
         expect(body.msg).to.equal("method not allowed");
       });
   });
-
 
   it('Deletes a given comment "/api/ comments/:comment_id" by comment_id', () => {
     return request(app)
@@ -773,13 +758,8 @@ it("POST: responds to a POST request by returning the POSTed comment on a key of
       .expect(400)
       .then(({ body }) => {
         expect(body.msg).to.equal(
-          "invalid (bad) request - ids/ votes: numbers only"
+          "invalid (bad) request - request must contain a number"
         );
       });
   });
 });
-
-// TO SORT - GET /api/articles accepts queries
-
-// Un-nest test responses/ uncomplicate bodies/ returns
-// Further Error-handling - standard cases - fringe/ extra cases...

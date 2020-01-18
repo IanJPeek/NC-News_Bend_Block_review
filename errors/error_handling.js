@@ -5,8 +5,8 @@ const app = express();
 
 exports.handlePSQLErrors = (err, req, res, next) => {
   // console.log("PSQL", err);
-  if (err.code === "22P02"){
-    res.status(400).send({msg:"invalid (bad) request - ids: numbers only; votes: I need your number, no strings ;)"})
+  if (err.code === "22P02"){ console.log("checked");
+    res.status(400).send({msg:"invalid (bad) request - request must contain a number"})
   }
   if (err.code === "22003") {
     res
