@@ -101,3 +101,4 @@ Endpoint	Request	Tests
 /api/comments GET Serves an array of all comments.
 /api/comments/:comment_id	PATCH	Changes the number of the 'votes' property of an individual comment object (and returns the updated comment). Returns an error if additional keys are provided, or non-integers are given for the required "inc_votes" body.
 /api/comments/:comment_id	DELETE	Deletes a specified comment according to the supplied ID. Returns an error if the specified comment does not exist or non-integer IDs are entered.
+
