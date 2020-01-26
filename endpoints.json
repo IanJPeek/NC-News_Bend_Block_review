@@ -1,18 +1,44 @@
 {
   "GET /api": {
-    "description": "serves up a json representation of all the available endpoints of the api"
+    "description": "Serves up a json representation of all the available endpoints of the api."
   },
 
   "GET /api/topics": {
-    "description": "serves an array of all topics",
+    "description": "Serves an array of all topics.",
     "queries": [],
     "exampleResponse": {
       "topics": [{ "slug": "football", "description": "Footie!" }]
     }
   },
 
+  "GET /api/users": {
+    "description": "Serves an array of all users.",
+    "queries": [],
+    "exampleResponse": {
+      "articles": [
+        {
+          "username": "tickle122",
+          "avatar_url": "https://www.spiritsurfers.net/monastery/wp-content/uploads/_41500270_mrtickle.jpg",
+          "name": "Tom Tickle"
+        }
+      ]
+    }
+  },
+
+  "GET /api/users/:username": {
+    "description": "Serves the details of a requested user. Returns an error if the requested user does not exist.",
+    "queries": [],
+    "exampleResponse": {
+      "user": {
+        "username": "jessjelly",
+        "avatar_url": "https://s-media-cache-ak0.pinimg.com/564x/39/62/ec/3962eca164e60cf46f979c1f57d4078b.jpg",
+        "name": "Jess Jelly"
+      }
+    }
+  },
+
   "GET /api/articles": {
-    "description": "serves an array of all topics",
+    "description": "Serves an array of all articles.",
     "queries": ["author", "topic", "sort_by", "order"],
     "exampleResponse": {
       "articles": [
@@ -26,8 +52,9 @@
       ]
     }
   },
+
   "GET /api/articles/:article_id": {
-    "description": "serves an individual article object",
+    "description": "Serves an individual article object.",
     "queries": [],
     "exampleResponse": {
       "article": {
@@ -42,20 +69,63 @@
       }
     }
   },
-  
-  "GET /api/users": {
-    "description": "serves an array of all users",
+
+  "PATCH /api/articles/:article_id": {
+    "description": "Changes the number of the 'votes' property of an individual article object (and returns the updated article).",
+    "body": {"inc_votes": 1},
     "queries": [],
     "exampleResponse": {
-      "articles": [
-        {
-          "username": "tickle122",
-          "avatar_url": "https://www.spiritsurfers.net/monastery/wp-content/uploads/_41500270_mrtickle.jpg",
-          "name": "Tom Tickle"
-        }
-      ]
+      "article": {
+        "article_id": 5,
+        "title": "Please stop worrying about Angular 3",
+        "body": "Another Angular version planned already? Whaaaat? Didn’t Angular 2 just ship? Why Angular 3? What? Why? First off, there is no massive rewrite, and won’t be for Angular 3. Secondly, let me explain the future of Angular 2 and what Angular 3, Angular 4 will mean for you.",
+        "votes": 1,
+        "topic": "coding",
+        "author": "jessjelly",
+        "created_at": "2016-10-24T04:13:02.648Z",
+        "comment_count": "6"
+      }
     }
   },
+
+"GET /api/articles/:article_id/comments": {
+  "description": "Serves an array of all comments on an individual article.",
+  "queries": ["sort_by",
+    "order"],
+  "exampleResponse": {
+    "comments": [
+      {
+        "comment_id": 70,
+        "author": "grumpy19",
+        "article_id": 4,
+        "votes": 5,
+        "created_at": "2018-01-29T06:21:22.610Z",
+        "body": "Et ullam nihil repudiandae facere sunt cupiditate cum. Doloremque voluptatem rerum qui error omnis. Dolorum numquam dolorum voluptas ad."
+      }]
+  }
+},
+
+"POST /api/articles/:article_id/comments": {
+  "description": "Posts a new comment to a specified individual article.",
+  "queries": [],
+  "body": {
+            "username": "jessjelly",
+            "body": "My thoughts exactly! -Exactly the entire opposite."
+},
+  "exampleResponse": {
+    "comments": [
+      {
+        "comment_id": 70,
+        "author": "jessjelly",
+        "article_id": 4,
+        "votes": 5,
+        "created_at": "2018-01-29T06:21:22.610Z",
+        "body": "My thoughts exactly! -Exactly the entire opposite."
+      }
+    ]
+  }
+},
+
   "GET /api/comments": {
     "description": "serves an array of all comments",
     "queries": [],
@@ -71,5 +141,28 @@
         }
       ]
     }
+  },
+
+"PATCH /api/comments/:comment_id": {
+  "description": "Changes the number of the 'votes' property of an individual comment object (and returns the updated comment).",
+  "body": {
+    "inc_votes": 1
+  },
+  "queries": [],
+  "exampleResponse": {
+    "comment": {
+      "comment_id": 4,
+      "author": "happyamy2016",
+      "article_id": 18,
+      "votes": 4,
+      "created_at": "2016-07-05T09:00:15.383Z",
+      "body": "Rerum voluptatem quam odio facilis quis illo unde. Ex blanditiis optio tenetur sunt. Cumque dolor ducimus et qui officia quasi non illum reiciendis."
+    }
   }
+},
+
+"DELETE /api/comments/:comment_id": {
+  "description": "Deletes a specified comment according to the supplied ID."
+}
+
 }

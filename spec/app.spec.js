@@ -437,7 +437,6 @@ describe("/api", () => {
           });
       });
 
-      // NOW FAILS ... Possibly? - BUMP in the carpet..
       it("ERROR HANDLES (with PSQL) - 400 - Responds to a POST request missing the required keys with a 400 status", () => {
         return request(app)
           .post("/api/articles/4/comments")
@@ -508,34 +507,7 @@ describe("/api", () => {
             expect(body.msg).to.equal("method not allowed");
           });
       });
-      //SEE THIS FOR POSTING COMMENT ERROR
-      // Are next 2 tests the same...?
-      // RETURNS PROPER/ CORRECT COMMENTS!
-      it("GET:200, responds to a GET request for all comments on a given article_id with an array of comments", () => {
-        return request(app)
-          .get("/api/articles/1/comments")
-          .expect(200)
-          .then(({ body }) => {
-            expect(body.comments[0]).to.contain.keys(
-              "comment_id",
-              "votes",
-              "body",
-              "author",
-              "created_at"
-            );
-            expect(body.comments[0]).to.eql({
-              comment_id: 2,
-              author: "butter_bridge",
-              article_id: 1,
-              votes: 14,
-              created_at: "2016-11-22T12:36:03.389Z",
-              body:
-                "The beautiful thing about treasure is that it exists. Got to find out what kind of sheets these are; not cotton, not rayon, silky."
-            });
-          });
-      });
-
-      //DUPLICATE.. MODIFY/ TWEAK/ ADAPT!
+      
       it("GET:200, responds to a GET request for all comments on a given article_id with an array of comments", () => {
         return request(app)
           .get("/api/articles/1/comments")
@@ -564,7 +536,7 @@ describe("/api", () => {
         return (
           request(app)
             .get("/api/articles/2/comments")
-            // .expect(200)
+            .expect(200)
             .then(({ body }) => {
               expect(body.msg).to.eql([]);
             })
