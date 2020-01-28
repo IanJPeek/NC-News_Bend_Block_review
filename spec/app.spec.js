@@ -507,7 +507,7 @@ describe("/api", () => {
             expect(body.msg).to.equal("method not allowed");
           });
       });
-      
+
       it("GET:200, responds to a GET request for all comments on a given article_id with an array of comments", () => {
         return request(app)
           .get("/api/articles/1/comments")
@@ -533,14 +533,12 @@ describe("/api", () => {
       });
 
       it("GET:200, responds with an empty array when a GET request is made to an article which exists, but has no comments attached to it", () => {
-        return (
-          request(app)
-            .get("/api/articles/2/comments")
-            .expect(200)
-            .then(({ body }) => {
-              expect(body.msg).to.eql([]);
-            })
-        );
+        return request(app)
+          .get("/api/articles/2/comments")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.msg).to.eql([]);
+          });
       });
 
       it("POST: responds to a POST request by returning the POSTed comment on a key of 'comment' & containing all expected keys", () => {
@@ -614,7 +612,6 @@ describe("/api", () => {
             );
           });
       });
-      // check if .length = expected no. of article comments...
     });
   });
 

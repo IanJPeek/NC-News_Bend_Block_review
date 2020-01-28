@@ -55,7 +55,6 @@ exports.checkArticleExists = article_id => {
     .groupBy("articles.article_id")
     .orderBy("articles.article_id")
     .then(article => {
-      // Article does not exist ERROR
       if (article.length === 0) {
         return Promise.reject({
           msg: "No such article number!",
@@ -63,7 +62,6 @@ exports.checkArticleExists = article_id => {
         });
       }
 
-      // ARTICLE EXISTS but no comments - empty array return
       if (article.length > 0 && +article[0].comment_count === 0) {
         return Promise.reject({
           msg: [],
@@ -79,7 +77,6 @@ exports.checkTopicExists = topic => {
     .from("articles")
     .where("articles.topic", topic)
     .then(article => {
-      // Topic does not exist ERROR
       if (article.length === 0) {
         return Promise.reject({
           msg: "No such topic!",
@@ -95,7 +92,6 @@ exports.checkAuthorExists = author => {
     .from("articles")
     .where("articles.author", author)
     .then(article => {
-      // Author does not exist ERROR
       if (article.length === 0) {
         return Promise.reject({
           msg: "No such author!",
@@ -154,16 +150,14 @@ exports.adjustArticleVote = (article_id, adjustNumber) => {
 };
 
 exports.postNewArticleComment = (article_id, user, comment) => {
-  return (
-    connection
-      .insert({ author: user, body: comment, article_id: article_id })
-      .into("comments")
-      .returning("*")
-      .then(commentedArticle => {
-        commentedArticle = commentedArticle[0];
-        return commentedArticle;
-      })
-  );
+  return connection
+    .insert({ author: user, body: comment, article_id: article_id })
+    .into("comments")
+    .returning("*")
+    .then(commentedArticle => {
+      commentedArticle = commentedArticle[0];
+      return commentedArticle;
+    });
 };
 
 exports.selectArticleComments = (article_id, query) => {

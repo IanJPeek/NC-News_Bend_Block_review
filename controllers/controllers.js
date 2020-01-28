@@ -52,15 +52,13 @@ const getSingleUser = (req, res, next) => {
 const getArticles = (req, res, next) => {
   const { topic, author } = req.query;
 
-  // Check Topic Exists
   if (Object.keys(req.query).includes("topic")) {
     checkTopicExists(topic).catch(next);
   }
 
-  // Check Author Exists
   if (Object.keys(req.query).includes("author")) {
-      checkAuthorExists(author).catch(next)
-    }
+    checkAuthorExists(author).catch(next);
+  }
 
   selectArticles(req.query)
     .then(articles => {
@@ -83,13 +81,10 @@ const increaseArticleVotes = (req, res, next) => {
   const { article_id } = req.params;
   const objectKeys = Object.keys(req.body);
 
-  // if 1 item & wrong key in PATCH
   if (objectKeys.length === 1 && objectKeys[0] !== "inc_votes") {
-    res
-      .status(418)
-      .send({
-        msg: "I'm a teapot - wrong method for getting what you're after"
-      });
+    res.status(418).send({
+      msg: "I'm a teapot - wrong method for getting what you're after"
+    });
   }
 
   if (objectKeys.length > 1) {
@@ -109,14 +104,12 @@ const increaseArticleVotes = (req, res, next) => {
 const addArticleComment = (req, res, next) => {
   const objectKeys = Object.keys(req.body);
 
-  // 2 KEYS in body of post, else ERROR
   if (objectKeys.length !== 2) {
     res
       .status(400)
       .send({ msg: "Please include username AND body in POST request" });
   }
 
-  // "username" KEY in post, else ERROR
   if (objectKeys.includes("username") === false) {
     res
       .status(400)
