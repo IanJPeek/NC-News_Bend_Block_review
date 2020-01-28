@@ -4,6 +4,10 @@ https://nc-news-ianp.herokuapp.com
 
 This project comprises the backend for a news api which serves up articles, comments, topics and users.
 
+The corresponding Front end for this repo is hosted at:  https://nc-news-ianpeek.herokuapp.com
+
+and the accompanying code for the Front end repo, here: https://github.com/IanJPeek/NCNewsflash2
+
 ### Prerequisites
 To run this project, the following must be installed globally:
 
@@ -122,8 +126,4 @@ Endpoints: The table below outlines the purpose of each test category, for addit
 | /api/comments | GET     | Serves an array of all comments. |
 | /api/comments/:comment_id          | PATCH   | Changes the number of the 'votes' property of an individual comment object (and returns the updated comment). Returns an error if additional keys are provided, or non-integers are given for the required "inc_votes" body.                                                                                           |
 | /api/comments/:comment_id          | DELETE  | Deletes a specified comment according to the supplied ID. Returns an error if the specified comment does not exist or non-integer IDs are entered.                                                                                                                                                                                                             |
-
-The corresponding Front end for this repo is hosted at:  https://nc-news-ianpeek.herokuapp.com
-with the accompanying repo here: https://github.com/IanJPeek/NCNewsflash2
-
 
