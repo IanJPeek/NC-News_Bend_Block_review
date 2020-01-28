@@ -5,7 +5,6 @@ https://nc-news-ianp.herokuapp.com
 This project comprises the backend for a news api which serves up articles, comments, topics and users.
 
 The corresponding Front end for this repo is hosted at:  https://nc-news-ianpeek.herokuapp.com
-
 and the accompanying code for the Front end repo, here: https://github.com/IanJPeek/NCNewsflash2
 
 ### Prerequisites
