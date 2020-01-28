@@ -38,7 +38,7 @@ Step 2: Open the repository with a code editor (eg VS Code or your own editor of
 
 Step 3: Navigate into the cloned repository, then install dependencies via the terminal with the command:
 
-npm i
+npm install
 
 Step 4: Create a knexfile.js file in the main directory, then insert the following lines of code:
 
@@ -122,3 +122,8 @@ Endpoints: The table below outlines the purpose of each test category, for addit
 | /api/comments | GET     | Serves an array of all comments. |
 | /api/comments/:comment_id          | PATCH   | Changes the number of the 'votes' property of an individual comment object (and returns the updated comment). Returns an error if additional keys are provided, or non-integers are given for the required "inc_votes" body.                                                                                           |
 | /api/comments/:comment_id          | DELETE  | Deletes a specified comment according to the supplied ID. Returns an error if the specified comment does not exist or non-integer IDs are entered.                                                                                                                                                                                                             |
+
+The corresponding Front end for this repo is hosted at:  https://nc-news-ianpeek.herokuapp.com
+with the accompanying repo here: https://github.com/IanJPeek/NCNewsflash2
+
+
