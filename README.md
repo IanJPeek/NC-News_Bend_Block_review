@@ -1,6 +1,6 @@
 # NC-News_Bend_Block_review
 
-https://nc-news-ianp.herokuapp.com
+https://nc-news-ianpeek.herokuapp.com
 
 This project comprises the backend for a news api which serves up articles, comments, topics and users.
 
