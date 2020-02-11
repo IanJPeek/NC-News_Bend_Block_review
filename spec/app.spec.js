@@ -740,7 +740,7 @@ it('responds to a GET request to the api with all available endpoints', () => {
   .then(({body}) => {
    expect(body.endpoints["GET /api"]).to.eql({
      description:
-       "Serves up a json representation of all the available endpoints of the api."
+       "Serves up a JSON representation of all the available endpoints of the api."
    });
   })
 });
