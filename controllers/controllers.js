@@ -15,6 +15,7 @@ const {
   adjustCommentVote,
   removeComment
 } = require("../models/models");
+const endpointsJSON = require("../endpoints.json")
 
 const send405 = (req, res, next) => {
   res.status(405).send({ msg: "method not allowed" });
@@ -23,6 +24,11 @@ const send405 = (req, res, next) => {
 const send404 = (req, res, next) => {
   res.status(404).send({ msg: "404 Not Found - Invalid Route" });
 };
+
+const getEndpoints = (req, res, next) => {
+  const endpoints = endpointsJSON;
+  res.status(200).json({endpoints});
+}
 
 const getTopics = (req, res, next) => {
   selectTopics(req.query)
@@ -190,6 +196,7 @@ const deleteCommentByID = (req, res, next) => {
 module.exports = {
   send404,
   send405,
+  getEndpoints,
   getTopics,
   getUsers,
   getArticles,

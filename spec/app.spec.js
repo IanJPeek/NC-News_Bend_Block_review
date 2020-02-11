@@ -731,4 +731,18 @@ describe("/api", () => {
         );
       });
   });
+
+// ENDPOINTS
+it('responds to a GET request to the api with all available endpoints', () => {
+  return request (app)
+  .get("/api")
+  .expect(200)
+  .then(({body}) => {
+   expect(body.endpoints["GET /api"]).to.eql({
+     description:
+       "Serves up a json representation of all the available endpoints of the api."
+   });
+  })
+});
+
 });
